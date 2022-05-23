@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "NYC",
+            "runtimeExecutable": "nyc",
+            "runtimeArgs": [
+                "--reporter=lcov",
+                "--reporter=cobertura",
+                "--reporter=text-summary",
+                "mocha",
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceFolder}/.github/scripts"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceRoot}/.github/scripts",
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Mocha",
+            "runtimeExecutable": "mocha",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceRoot}/.github/scripts",
+        }
+    ]
+}
