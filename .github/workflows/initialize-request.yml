@@ -8,17 +8,29 @@ jobs:
   initialize-request:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Get JSON Data out of Issue Request
-        uses: peter-murray/issue-body-parser-action@3e64e7428f8e3f89a78a93b230181d07c65f9661
-        id: issue_body_parser_request
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_id: ${{ github.event.client_payload.command.resource.number }}
-          payload_marker: request
-      - name: Initialize GitHub Marketplace Action Request
-        uses: actions/github-script@main
-        with:
-          script: |
-            const paylaod = ${{ steps.issue_body_parser_approver.outputs.payload }}
-            await require('./.github/scripts/initialize-request.js')({github, context, payload })
+    - name: Check out scripts
+      uses: actions/checkout@v2
+
+    - name: Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+        check-latest: true
+    - name: Install dependencies
+      run: |
+        cd .github/scripts
+        npm install
+
+    - name: Get JSON Data out of Issue Request
+      uses: peter-murray/issue-body-parser-action@3e64e7428f8e3f89a78a93b230181d07c65f9661
+      id: issue_body_parser_request
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_id: ${{ github.event.client_payload.command.resource.number }}
+        payload_marker: request
+    - name: Initialize GitHub Marketplace Action Request
+      uses: actions/github-script@main
+      with:
+        script: |
+          const paylaod = ${{ steps.issue_body_parser_approver.outputs.payload }}
+          await require('./.github/scripts/initialize-request.js')({github, context, payload })
