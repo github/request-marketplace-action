@@ -1,0 +1,29 @@
+{
+    "name": "request-marketpalce-action",
+    "version": "1.0.0",
+    "private": true,
+    "description": "GitHub Actions workflow to request a marketplace action",
+    "main": "initialize-request.js",
+    "scripts": {
+        "test": "nyc --reporter=lcov --reporter=cobertura --reporter=text --reporter=text-summary mocha "
+    },
+    "dependencies": {
+        "@octokit/rest": "^18.12.0"
+    },
+    "repository": "robandpdx:request-marketpalce-action",
+    "keywords": [],
+    "author": "Rob Anderson (https://github.com/robandpdx)",
+    "license": "MIT",
+    "devDependencies": {
+        "mocha": "^9.2.1",
+        "mock-fs": "^5.1.2",
+        "nock": "^13.0.7",
+        "nyc": "^15.1.0",
+        "uvu": "^0.5.1"
+    },
+    "release": {
+        "branches": [
+            "main"
+        ]
+    }
+}
