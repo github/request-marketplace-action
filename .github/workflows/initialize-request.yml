@@ -1,0 +1,23 @@
+name: Initialize Request
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  initialize-request:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get JSON Data out of Issue Request
+        uses: peter-murray/issue-body-parser-action@3e64e7428f8e3f89a78a93b230181d07c65f9661
+        id: issue_body_parser_request
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_id: ${{ github.event.client_payload.command.resource.number }}
+          payload_marker: request
+      - name: Initialize GitHub Marketplace Action Request
+        uses: actions/github-script@main
+        with:
+          script: |
+            await require('./.github/scripts/initialize-request.js')({github, context, steps.issue_body_parser_approver.outputs.payload })
