@@ -32,5 +32,5 @@ jobs:
       uses: actions/github-script@main
       with:
         script: |
-          const payload = ${{ steps.issue_body_parser_approver.outputs.payload }}
+          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
           await require('./.github/scripts/initialize-request.js')({github, context, payload })
