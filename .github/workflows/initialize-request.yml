@@ -28,10 +28,12 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         issue_id: ${{ github.event.client_payload.command.resource.number }}
         payload_marker: request
+    - name: Dump steps context
+      run: echo '${{ toJSON(steps) }}'
     - name: Initialize GitHub Marketplace Action Request
       uses: actions/github-script@main
       with:
         script: |
-          console.log("${{ steps.issue_body_parser_request.outputs.payload }}");
-          const payload = ${{ steps.issue_body_parser_request.outputs.payload }};
-          await require('./.github/scripts/initialize-request.js')({github, context, payload });
+          console.log("${{ steps.issue_body_parser_request.outputs.payload }}")
+          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
+          await require('./.github/scripts/initialize-request.js')({github, context, payload })
