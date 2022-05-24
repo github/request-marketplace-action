@@ -26,7 +26,7 @@ jobs:
       id: issue_body_parser_request
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_id: ${{ github.event.client_payload.command.resource.number }}
+        issue_id: ${{ github.event.issue.number }}
         payload_marker: request
     - name: Dump steps context
       run: echo '${{ toJSON(steps) }}'
