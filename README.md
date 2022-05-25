@@ -5,7 +5,7 @@ Include in your issue, the following markdown...
 ```
     ```json request
     {
-        "actions": "hashicorp-contrib/setup-packer@v1"
+        "action": "hashicorp-contrib/setup-packer@v1"
     }
     ```
 ```
