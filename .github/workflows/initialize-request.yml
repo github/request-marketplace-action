@@ -22,7 +22,7 @@ jobs:
         npm install
 
     - name: Get JSON Data out of Issue Request
-      uses: peter-murray/issue-body-parser-action@3e64e7428f8e3f89a78a93b230181d07c65f9661
+      uses: peter-murray/issue-body-parser-action@v1
       id: issue_body_parser_request
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
