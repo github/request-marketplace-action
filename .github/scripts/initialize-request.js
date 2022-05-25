@@ -4,13 +4,13 @@ const fs = require("fs");
 let stagingOrg = 'actions-staging';
 let octokit;
 
-module.exports = async ({github, context, payload}) => {
+module.exports = async ({github, context, payload, options}) => {
     console.log(`Adding action to ${stagingOrg} org: ${JSON.stringify(payload.action)}`);
 
-    console.log(`github: ${JSON.stringify(github)}`);
+    console.log(`options: ${JSON.stringify(options)}`);
     octokit = new Octokit({
-        auth: github.token,
-        baseUrl: github.api_url
+        auth: options.token,
+        baseUrl: options.baseUrl
     });
 
     let allowedActions  = await octokit.rest.actions.getAllowedActionsOrganization({
