@@ -30,6 +30,8 @@ jobs:
         payload_marker: request
     - name: Dump steps context
       run: echo '${{ toJSON(steps) }}'
+    - name: Dump github context
+      run: echo '${{ toJSON(github) }}'
     - name: Initialize GitHub Marketplace Action Request
       uses: actions/github-script@main
       with:
