@@ -8,6 +8,7 @@ module.exports = async ({github, context, payload, options}) => {
     console.log(`Adding action to ${stagingOrg} org: ${JSON.stringify(payload.action)}`);
 
     console.log(`options: ${JSON.stringify(options)}`);
+    console.log(`github: ${JSON.stringify(github)}`);
     octokit = new Octokit({
         auth: options.token,
         baseUrl: options.baseUrl
