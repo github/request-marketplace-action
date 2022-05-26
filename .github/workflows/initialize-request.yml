@@ -38,4 +38,4 @@ jobs:
         script: |
           const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
           const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
-          await require('./.github/scripts/initialize-request.js')({'${{github}}', context, payload, options});
+          await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
