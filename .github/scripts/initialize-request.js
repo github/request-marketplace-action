@@ -22,8 +22,8 @@ module.exports = async ({github, context, payload, options}) => {
             org: stagingOrg,
             patterns_allowed: allowedActions.data.patterns_allowed
         });
-        console.log(`Updated allowed actions: ${JSON.stringify(allowedActions.data.patterns_allowed)}`);
+        console.log(`Updated allowed actions: ${JSON.stringify(allowedActions.data.patterns_allowed)} in ${stagingOrg}`);
     } else {
-        console.log(`Action ${payload.action} already allowed`);
+        console.log(`Action ${payload.action} already allowed in ${stagingOrg}`);
     }
 }
