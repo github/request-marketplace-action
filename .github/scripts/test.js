@@ -7,17 +7,16 @@ const nock = require("nock");
 nock.disableNetConnect();
 
 const { Octokit } = require("@octokit/rest");
+
 const github = new Octokit({
     auth: "secret123",
-    token: "secret123",
-    api_url: "https://api.github.com",
-    userAgent: 'myApp v1.2.3',
-    event: {
-        issue: {
-            number: 1
-        }
-    }
+    userAgent: 'myApp v1.2.3'
 });
+
+const options = {
+    token: "secret123",
+    baseUrl: "https://github.robandpdx.demo-stack.com/api/v3",
+};
 
 const context = {
     payload: {
@@ -53,14 +52,14 @@ test.after.each(() => {
 
 // This test finds some repos that are not stale
 test("find no stale repos", async function () {
-    let mock = nock("https://api.github.com");
+    let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
     mock.get(`/orgs/actions-staging/actions/permissions/selected-actions`)
         .reply(200, allowedActionsForOrg);
 
     mock.put(`/orgs/actions-staging/actions/permissions/selected-actions`)
         .reply(204);
 
-    await require('./initialize-request.js')({github, context, payload});
+    await require('./initialize-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);
 });
 
