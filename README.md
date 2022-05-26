@@ -16,3 +16,4 @@ Include in your issue, the following markdown...
 1. Configure the org where this repo resides to allow the following actions:
     - actions/setup-node@v2
     - peter-murray/issue-body-parser-action@v1
+1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has admin:org rights.
