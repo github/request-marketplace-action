@@ -15,7 +15,7 @@ module.exports = async ({github, context, payload, options}) => {
         baseUrl: options.baseUrl
     });
 
-    let response = await ghoctokit.request(`GET /repos/${payload.owner}/${payloadrepo}/tarball/${payload.ref}`, {
+    let response = await ghoctokit.request(`GET /repos/${payload.owner}/${payload.repo}/tarball/${payload.ref}`, {
         owner: payload.owner,
         repo: payload.repo,
         ref: payload.ref
