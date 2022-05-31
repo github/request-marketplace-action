@@ -43,7 +43,6 @@ jobs:
     # - name: Show the directory
     #   run: ls -l requested-action
     - name: Check out requested action repo
-      uses: actions/checkout@v2
       run: |
         git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
     # - name: Initialize GitHub Marketplace Action Request
