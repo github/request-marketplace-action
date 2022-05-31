@@ -1,6 +1,4 @@
 const { Octokit } = require("@octokit/rest");
-const fs = require("fs");
-var NodeGit = require("nodegit");
 
 let actionsApprovedOrg = 'actions-approved';
 let octokit;
@@ -22,4 +20,6 @@ module.exports = async ({github, context, payload, options}) => {
         has_projects: false,
         has_wiki: false
     });
+
+    console.log(JSON.stringify(response.data));
 }
