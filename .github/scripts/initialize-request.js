@@ -9,7 +9,7 @@ module.exports = async ({github, context, payload, options}) => {
     // Instantiate octokit for github.com
     // ghoctokit = new Octokit({
     // });
-
+    console.log("Setting up vars for clone...");
     var cloneURL = `https://github.com/${payload.owner}/${payload.repo}.git`;
     //var localPath = require("path").join(__dirname, "requested-action");
     var localPath = './requested-action';
