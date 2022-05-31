@@ -33,8 +33,8 @@ jobs:
     - name: Check out requested action repo
       uses: actions/checkout@v2
       with:
-        repository: '${{ JSON.parse(steps.issue_body_parser_request.outputs.payload).owner }}/${{ JSON.parse(steps.issue_body_parser_request.outputs.payload).repo }}'
-        ref: '${{ JSON.parse(steps.issue_body_parser_request.outputs.payload).ref }}'
+        repository: '${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}'
+        ref: '${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}'
         path: requested-action
     # - name: Initialize GitHub Marketplace Action Request
     #   run: ./.github/scripts/initialize-request.sh
