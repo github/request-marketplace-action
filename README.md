@@ -11,6 +11,7 @@ Include in your issue, the following markdown...
     }
     ```
 ```
+See [examples.md](examples.md) for more examples.
 
 ## Prerequisites
 1. You must have [enabled GitHub Actions for GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@3.4/admin/github-actions/enabling-github-actions-for-github-enterprise-server)
@@ -18,5 +19,5 @@ Include in your issue, the following markdown...
 1. Configure the org where this repo resides to allow the following actions:
     - actions/setup-node@v2
     - peter-murray/issue-body-parser-action@v1
-1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has admin:org rights on your GHEC server.
+1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has admin:org and repo rights on your GHEC server.
 1. Configure this repo with a secret names `GHTOKEN` 
