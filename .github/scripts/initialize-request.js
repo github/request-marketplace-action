@@ -11,7 +11,8 @@ module.exports = async ({github, context, payload, options}) => {
     // });
 
     var cloneURL = `https://github.com/${payload.owner}/${payload.repo}.git`;
-    var localPath = require("path").join(__dirname, "requested-action");
+    //var localPath = require("path").join(__dirname, "requested-action");
+    var localPath = './requested-action';
     var cloneOptions = {};
     cloneOptions.fetchOpts = {
         callbacks: {
