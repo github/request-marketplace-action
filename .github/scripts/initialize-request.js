@@ -1,5 +1,6 @@
 const { Octokit } = require("@octokit/rest");
 const fs = require("fs");
+var NodeGit = require("nodegit");
 
 let stagingOrg = 'actions-staging';
 let octokit;
@@ -8,6 +9,16 @@ module.exports = async ({github, context, payload, options}) => {
     // Instantiate octokit for github.com
     // ghoctokit = new Octokit({
     // });
+
+    var cloneURL = `https://github.com/${payload.owner}/${payload.repo}.git`;
+    var localPath = require("path").join(__dirname, "requested-action");
+    cloneOptions.fetchOpts = {
+        callbacks: {
+          certificateCheck: function() { return 0; }
+        }
+      };
+
+      var cloneRepository = await NodeGit.Clone(cloneURL, localPath, cloneOptions);
     
     // Instantiate octokit with ghtoken and baseUrl for GHES
     octokit = new Octokit({
