@@ -42,12 +42,17 @@ jobs:
     #   run: ./.github/scripts/initialize-request.sh
     # - name: Show the directory
     #   run: ls -l requested-action
-    - name: Initialize GitHub Marketplace Action Request
-      uses: actions/github-script@main
-      with:
-        script: |
-          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
-          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
-          await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
+    - name: Check out requested action repo
+      uses: actions/checkout@v2
+      run: |
+        git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
+    # - name: Initialize GitHub Marketplace Action Request
+    #   uses: actions/github-script@main
+    #   with:
+    #     debug: true
+    #     script: |
+    #       const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
+    #       const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
+    #       await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
     - name: Show the directory
       run: ls -l requested-action
