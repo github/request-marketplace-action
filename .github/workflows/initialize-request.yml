@@ -30,28 +30,16 @@ jobs:
         payload_marker: request
     - name: Dump steps context
       run: echo '${{ toJSON(steps) }}'
-    # checkout does not work because the getServiceUrl() method returns the GHES instance...
-    # https://github.com/actions/checkout/blob/main/src/url-helper.ts#L22
-    # - name: Check out requested action repo
-    #   uses: actions/checkout@v2
-    #   with:
-    #     repository: '${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}'
-    #     ref: '${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}'
-    #     path: requested-action
-    # - name: Initialize GitHub Marketplace Action Request
-    #   run: ./.github/scripts/initialize-request.sh
-    # - name: Show the directory
-    #   run: ls -l requested-action
     - name: Check out requested action repo
       run: |
         git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
-    # - name: Initialize GitHub Marketplace Action Request
-    #   uses: actions/github-script@main
-    #   with:
-    #     debug: true
-    #     script: |
-    #       const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
-    #       const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
-    #       await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
     - name: Show the directory
       run: ls -l requested-action
+    - name: Initialize GitHub Marketplace Action Request
+      uses: actions/github-script@main
+      with:
+        debug: true
+        script: |
+          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
+          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
+          await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
