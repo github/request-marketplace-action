@@ -28,6 +28,16 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         issue_id: ${{ github.event.issue.number }}
         payload_marker: request
+    - name: Check out requested action repo
+      uses: actions/checkout@v2
+      with:
+        repository: ${{steps.issue_body_parser_request.outputs.payload.owner}}/${{steps.issue_body_parser_request.outputs.payload.repo}}
+        ref: $${{steps.issue_body_parser_request.outputs.payload.ref}}
+        path: requested-action
+    # - name: Initialize GitHub Marketplace Action Request
+    #   run: ./.github/scripts/initialize-request.sh
+    - name: Initialize GitHub Marketplace Action Request
+      run: ls -l requested-action
     - name: Initialize GitHub Marketplace Action Request
       uses: actions/github-script@main
       with:

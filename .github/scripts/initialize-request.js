@@ -6,8 +6,8 @@ let octokit;
 
 module.exports = async ({github, context, payload, options}) => {
     // Instantiate octokit for github.com
-    ghoctokit = new Octokit({
-    });
+    // ghoctokit = new Octokit({
+    // });
     
     // Instantiate octokit with ghtoken and baseUrl for GHES
     octokit = new Octokit({
@@ -15,13 +15,13 @@ module.exports = async ({github, context, payload, options}) => {
         baseUrl: options.baseUrl
     });
 
-    let response = await ghoctokit.request(`GET /repos/${payload.owner}/${payload.repo}/tarball/${payload.ref}`, {
-        owner: payload.owner,
-        repo: payload.repo,
-        ref: payload.ref
-    });
+    // let response = await ghoctokit.request(`GET /repos/${payload.owner}/${payload.repo}/tarball/${payload.ref}`, {
+    //     owner: payload.owner,
+    //     repo: payload.repo,
+    //     ref: payload.ref
+    // });
 
-    console.log(response);
+    //console.log(response);
 
     // // Get the list of selected actions from the staging org
     // let allowedActions  = await octokit.rest.actions.getAllowedActionsOrganization({
