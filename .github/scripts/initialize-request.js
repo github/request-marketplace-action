@@ -17,9 +17,12 @@ module.exports = async ({github, context, payload, options}) => {
           certificateCheck: function() { return 0; }
         }
       };
-
-      var cloneRepository = await NodeGit.Clone(cloneURL, localPath, cloneOptions);
-    
+    console.log("Attempting to clone " + cloneURL + " to " + localPath);
+    try {
+        var cloneRepository = await NodeGit.Clone(cloneURL, localPath, cloneOptions);
+    } catch (e) {
+        console.log("Error cloning repository: " + e);
+    }
     // Instantiate octokit with ghtoken and baseUrl for GHES
     octokit = new Octokit({
         auth: options.token,
