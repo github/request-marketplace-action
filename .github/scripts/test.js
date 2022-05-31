@@ -49,14 +49,13 @@ test.after.each(() => {
 // This test will update the selected-actions in the actions-staging org
 test("update selected-actions in the actions-staging org", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
-    mock.get(`/orgs/actions-staging/actions/permissions/selected-actions`)
-        .reply(200, allowedActionsForOrg);
-
-    mock.put(`/orgs/actions-staging/actions/permissions/selected-actions`)
-        .reply(204);
+    mock.post(`/orgs/actions-approved/repos`)
+         .reply(201);
 
     let payload = {
-        action: "hashicorp-contrib/setup-packer@v1"
+        owner: "hashicorp-contrib",
+        repo:"setup-packer",
+        ref: "v1"
     }
 
     await require('./initialize-request.js')({github, context, payload, options});
@@ -64,17 +63,17 @@ test("update selected-actions in the actions-staging org", async function () {
 });
 
 // This test will NOT update the selected-actions in the actions-staging org
-test("do NOT update selected-actions in the actions-staging org", async function () {
-    let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
-    mock.get(`/orgs/actions-staging/actions/permissions/selected-actions`)
-        .reply(200, allowedActionsForOrg);
+// test("do NOT update selected-actions in the actions-staging org", async function () {
+//     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
+//     mock.get(`/orgs/actions-staging/actions/permissions/selected-actions`)
+//         .reply(200, allowedActionsForOrg);
 
-    let payload = {
-        action: "peter-murray/issue-body-parser-action@v1"
-    }
+//     let payload = {
+//         action: "peter-murray/issue-body-parser-action@v1"
+//     }
 
-    await require('./initialize-request.js')({github, context, payload, options});
-    assert.equal(mock.pendingMocks(), []);
-});
+//     await require('./initialize-request.js')({github, context, payload, options});
+//     assert.equal(mock.pendingMocks(), []);
+// });
 
 test.run();
