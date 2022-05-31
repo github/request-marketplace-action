@@ -8,7 +8,8 @@
         "test": "nyc --reporter=lcov --reporter=cobertura --reporter=text --reporter=text-summary mocha "
     },
     "dependencies": {
-        "@octokit/rest": "^18.12.0"
+        "@octokit/rest": "^18.12.0",
+        "nodegit": "^0.27.0"
     },
     "repository": "robandpdx:request-marketpalce-action",
     "keywords": [],
