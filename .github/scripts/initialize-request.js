@@ -20,7 +20,7 @@ module.exports = async ({github, context, payload, options}) => {
         console.log(response);
         console.log(`Repo ${payload.repo} already exists`);
     })
-    .catch(error => {
+    .catch(async error => {
         console.log(error);
         console.log(`Creating repo ${payload.repo}`);
         let response = await octokit.request(`POST /orgs/${actionsApprovedOrg}/repos`, {
