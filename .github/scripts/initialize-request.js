@@ -25,7 +25,7 @@ module.exports = async ({github, context, payload, options}) => {
         console.log(`Creating repo ${payload.repo}`);
         let response = await octokit.request(`POST /orgs/${actionsApprovedOrg}/repos`, {
             org: actionsApprovedOrg,
-            name: payload.repo,
+            name: `${payload.repo}_${payload.ref}`,
             description: `${payload.owner}/${payload.repo}@${payload.ref}`,
             homepage: `https://github.com/${payload.owner}/${payload.repo}`,
             'private': true,
