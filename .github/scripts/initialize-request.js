@@ -19,6 +19,7 @@ module.exports = async ({github, context, payload, options}) => {
     .then(response => {
         console.log(response);
         console.log(`Repo ${payload.repo}_${payload.ref} already exists`);
+        throw new Error(`Repo ${payload.repo}_${payload.ref} already exists`);
     })
     .catch(async error => {
         console.log(error);
