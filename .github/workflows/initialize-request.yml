@@ -1,4 +1,4 @@
-name: Initialize Request
+name: Initialize Marketplace Action Request
 
 on:
   issues:
@@ -8,6 +8,13 @@ jobs:
   initialize-request:
     runs-on: self-hosted
     steps:
+    - name: Get JSON Data out of Issue Request
+      uses: peter-murray/issue-body-parser-action@v1
+      id: issue_body_parser_request
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_id: ${{ github.event.issue.number }}
+        payload_marker: request
     - name: Check out scripts
       uses: actions/checkout@v2
 
@@ -20,22 +27,9 @@ jobs:
       run: |
         cd .github/scripts
         npm install
-
-    - name: Get JSON Data out of Issue Request
-      uses: peter-murray/issue-body-parser-action@v1
-      id: issue_body_parser_request
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_id: ${{ github.event.issue.number }}
-        payload_marker: request
     - name: Dump steps context
       run: echo '${{ toJSON(steps) }}'
-    - name: Check out requested action repo
-      run: |
-        git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
-    - name: Show the directory
-      run: ls -l requested-action
-    - name: Initialize GitHub Marketplace Action Request
+    - name: Create the repo actions-approved/ ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }} on GitHub Enterprise Server
       uses: actions/github-script@main
       with:
         debug: true
@@ -43,7 +37,12 @@ jobs:
           const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
           const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
           await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
-    - name: Push to private repo in actions-approved org
+    - name: Check out requested action repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}
+      run: |
+        git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
+    - name: Show the directory
+      run: ls -l requested-action
+    - name: Push requested action to private repo in actions-approved org on GitHub Enterprise Server
       run: |
         cd requested-action
         git config user.email '${{ secrets.GITHUB_EMAIL }}'
