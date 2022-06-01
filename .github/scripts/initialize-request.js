@@ -10,16 +10,26 @@ module.exports = async ({github, context, payload, options}) => {
         baseUrl: options.baseUrl
     });
 
-    let response = await octokit.request(`POST /orgs/${actionsApprovedOrg}/repos`, {
-        org: actionsApprovedOrg,
-        name: payload.repo,
-        description: `${payload.owner}/${payload.repo}@${payload.ref}`,
-        homepage: `https://github.com/${payload.owner}/${payload.repo}`,
-        'private': true,
-        has_issues: true,
-        has_projects: false,
-        has_wiki: false
+    // check if the repo already exists
+    let repo = await octokit.request('GET /repos/{owner}/{repo}', {
+        owner: actionsApprovedOrg,
+        repo: payload.repo
     });
-
-    console.log(JSON.stringify(response));
+    // create new repo
+    if (repo.status === 404) {
+        console.log(`Creating repo ${payload.repo}`);
+        let response = await octokit.request(`POST /orgs/${actionsApprovedOrg}/repos`, {
+            org: actionsApprovedOrg,
+            name: payload.repo,
+            description: `${payload.owner}/${payload.repo}@${payload.ref}`,
+            homepage: `https://github.com/${payload.owner}/${payload.repo}`,
+            'private': true,
+            has_issues: true,
+            has_projects: false,
+            has_wiki: false
+        });
+    } else {
+        console.log(`Repo ${payload.repo} already exists`);
+    }
+    //console.log(JSON.stringify(response));
 }
