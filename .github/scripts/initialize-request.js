@@ -10,9 +10,10 @@ module.exports = async ({github, context, payload, options}) => {
         baseUrl: options.baseUrl
     });
 
+    let repo;
     // check if the repo already exists
     try {
-        let repo = await octokit.request('GET /repos/{owner}/{repo}', {
+        repo = await octokit.request('GET /repos/{owner}/{repo}', {
             owner: actionsApprovedOrg,
             repo: payload.repo
         });
