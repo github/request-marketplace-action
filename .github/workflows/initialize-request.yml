@@ -48,7 +48,7 @@ jobs:
         cd requested-action
         git config user.email '${{ secrets.GITHUB_EMAIL }}'
         git config user.name '${{ secrets.GITHUB_USERNAME }}'
-        if (`git checkout main`); then
+        if [`git checkout main`]; then
           git branch -m main-old
         fi
         git checkout ${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}
