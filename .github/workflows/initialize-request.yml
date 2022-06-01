@@ -48,8 +48,13 @@ jobs:
         cd requested-action
         git config user.email '${{ secrets.GITHUB_EMAIL }}'
         git config user.name '${{ secrets.GITHUB_USERNAME }}'
+        if (`git checkout main`); then
+          git branch -m main-old
+        fi
         git checkout ${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}
         git switch -c ${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}-branch
-        git remote add origin2 ${{ github.server_url }}/actions-approved/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}.git
+        git brach -m main
+        git remote add origin2 ${{ github.server_url }}/actions-approved/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}.git
+        git push -u origin2 main
         git push -u origin2 ${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}
-        git push -u origin2 ${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}-branch
+        
