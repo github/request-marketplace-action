@@ -11,10 +11,16 @@ module.exports = async ({github, context, payload, options}) => {
     });
 
     // check if the repo already exists
-    let repo = await octokit.request('GET /repos/{owner}/{repo}', {
-        owner: actionsApprovedOrg,
-        repo: payload.repo
-    });
+    try {
+        let repo = await octokit.request('GET /repos/{owner}/{repo}', {
+            owner: actionsApprovedOrg,
+            repo: payload.repo
+        });
+    } catch (err) {
+        console.log(err);
+    }
+
+
     // create new repo
     if (repo.status === 404) {
         console.log(`Creating repo ${payload.repo}`);
@@ -30,6 +36,7 @@ module.exports = async ({github, context, payload, options}) => {
         });
     } else {
         console.log(`Repo ${payload.repo} already exists`);
+        //throw new Error(`Repo ${payload.repo} already exists`);
     }
     //console.log(JSON.stringify(response));
 }
