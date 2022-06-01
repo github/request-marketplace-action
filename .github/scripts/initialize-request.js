@@ -21,5 +21,5 @@ module.exports = async ({github, context, payload, options}) => {
         has_wiki: false
     });
 
-    console.log(JSON.stringify(response.data));
+    console.log(JSON.stringify(response));
 }
