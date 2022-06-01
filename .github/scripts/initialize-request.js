@@ -12,17 +12,17 @@ module.exports = async ({github, context, payload, options}) => {
 
     //let repo;
     // check if the repo already exists
-    let repo = await octokit.request('GET /repos/{owner}/{repo}', {
+    let repo = await octokit.request(`GET /repos/${actionsApprovedOrg}/${payload.repo}_${payload.ref}`, {
         owner: actionsApprovedOrg,
-        repo: payload.repo
+        repo: `${payload.repo}_${payload.ref}`
     })
     .then(response => {
         console.log(response);
-        console.log(`Repo ${payload.repo} already exists`);
+        console.log(`Repo ${payload.repo}_${payload.ref} already exists`);
     })
     .catch(async error => {
         console.log(error);
-        console.log(`Creating repo ${payload.repo}`);
+        console.log(`Creating repo ${payload.repo}_${payload.ref}`);
         let response = await octokit.request(`POST /orgs/${actionsApprovedOrg}/repos`, {
             org: actionsApprovedOrg,
             name: `${payload.repo}_${payload.ref}`,
