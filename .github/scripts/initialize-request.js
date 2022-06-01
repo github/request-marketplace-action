@@ -10,6 +10,7 @@ module.exports = async ({github, context, payload, options}) => {
         baseUrl: options.baseUrl
     });
 
+    let exitError = false;
     //let repo;
     // check if the repo already exists
     let repo = await octokit.request(`GET /repos/${actionsApprovedOrg}/${payload.repo}_${payload.ref}`, {
@@ -19,7 +20,7 @@ module.exports = async ({github, context, payload, options}) => {
     .then(response => {
         console.log(response);
         console.log(`Repo ${payload.repo}_${payload.ref} already exists`);
-        throw new Error(`Repo ${payload.repo}_${payload.ref} already exists`);
+        exitError = true;
     })
     .catch(async error => {
         console.log(error);
@@ -35,6 +36,10 @@ module.exports = async ({github, context, payload, options}) => {
             has_wiki: false
         });
     });
+
+    if (exitError) {
+        throw new Error('Repo already exists');
+    }
 
     // create new repo
     // if (repo.status === 404) {
