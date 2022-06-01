@@ -38,7 +38,7 @@ module.exports = async ({github, context, payload, options}) => {
     });
 
     if (exitError) {
-        throw new Error('Repo already exists');
+        throw new Error(`Repo ${actionsApprovedOrg}/${payload.repo}_${payload.ref} already exists`);
     }
 
     // create new repo
