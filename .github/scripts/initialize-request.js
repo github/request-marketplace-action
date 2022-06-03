@@ -1,11 +1,10 @@
 const { Octokit } = require("@octokit/rest");
 
 let actionsApprovedOrg = 'actions-approved';
-let octokit;
 
 module.exports = async ({github, context, payload, options}) => {
     // Instantiate octokit with ghtoken and baseUrl for GHES
-    octokit = new Octokit({
+    let octokit = new Octokit({
         auth: options.token,
         baseUrl: options.baseUrl
     });
