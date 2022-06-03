@@ -2,7 +2,7 @@ name: Initialize Marketplace Action Request
 
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
 
 jobs:
   initialize-request:
