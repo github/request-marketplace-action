@@ -1,0 +1,18 @@
+name: Approve or Deny Marketplace Action Request
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  initialize-request:
+    runs-on: self-hosted
+    steps:
+    - name: Approve or deny request
+      uses: actions/github-script@main
+      with:
+        debug: true
+        script: |
+          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
+          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
+          await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});

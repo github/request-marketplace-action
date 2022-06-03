@@ -1,5 +1,6 @@
 const { test } = require('uvu');
 const assert = require('uvu/assert');
+const fs = require("fs");
 
 const nock = require("nock");
 nock.disableNetConnect();
@@ -28,17 +29,11 @@ const context = {
     }
 }
 
-const allowedActionsForOrg = {
-    "github_owned_allowed": true,
-    "verified_allowed": false,
-    "patterns_allowed": [
-        "actions/setup-node@v2",
-        "peter-murray/issue-body-parser-action@v1",
-    ]
-}
+const membershipResonse = JSON.parse(fs.readFileSync("./mocks/membership-response.json", "utf-8"));
+const issueCommentCreated = JSON.parse(fs.readFileSync("./mocks/issue-comment-created.json", "utf-8"));
 
 test.before.each(() => {
-    // nothing to do here
+    membershipResonse.sate = "active";
 });
 test.after.each(() => {
     // nothing to do here
@@ -92,6 +87,48 @@ test("Create the repo because it doesn't exist", async function () {
     }
 
     await require('./initialize-request.js')({github, context, payload, options});
+    assert.equal(mock.pendingMocks(), []);
+});
+
+// Change the repo visibility to prublic on approval
+test("Change the repo visibility to prublic on approval", async function () {
+    let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
+    membershipResonse.sate = "inactive";
+    mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/Codertocat?org=actions-approved&team_slug=actions-approvers&username=Codertocat`)
+    .reply(200, membershipResonse);
+    
+    let payload = issueCommentCreated
+
+
+    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    assert.equal(mock.pendingMocks(), []);
+});
+
+// Membership not active 404
+test("Membership not active 404", async function () {
+    let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
+
+    mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/Codertocat?org=actions-approved&team_slug=actions-approvers&username=Codertocat`)
+    .reply(404);
+    
+    let payload = issueCommentCreated
+
+
+    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    assert.equal(mock.pendingMocks(), []);
+});
+
+// Membership not active
+test("Membership not active", async function () {
+    let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
+
+    mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/Codertocat?org=actions-approved&team_slug=actions-approvers&username=Codertocat`)
+    .reply(200, membershipResonse);
+    
+    let payload = issueCommentCreated
+
+
+    await require('./approve-or-deny-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);
 });
 
