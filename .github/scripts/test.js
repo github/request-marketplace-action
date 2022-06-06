@@ -90,8 +90,22 @@ test("Create the repo because it doesn't exist", async function () {
     assert.equal(mock.pendingMocks(), []);
 });
 
-// Change the repo visibility to prublic on approval
+// Change the repo visibility to public on approval
 test("Change the repo visibility to prublic on approval", async function () {
+    let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
+    membershipResonse.sate = "inactive";
+    mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/Codertocat?org=actions-approved&team_slug=actions-approvers&username=Codertocat`)
+    .reply(200, membershipResonse);
+    
+    let payload = issueCommentCreated
+
+
+    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    assert.equal(mock.pendingMocks(), []);
+});
+
+// Change the repo to archived on denial
+test("Change the repo to archived on denial", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
     membershipResonse.sate = "inactive";
     mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/Codertocat?org=actions-approved&team_slug=actions-approvers&username=Codertocat`)
