@@ -3,7 +3,7 @@ const { Octokit } = require("@octokit/rest");
 let actionsApprovedOrg = 'actions-approved';
 let actionsApproverTeam = 'actions-approvers'
 
-module.exports = async ({github, context, payload, options}) => {
+module.exports = async ({github, context, options}) => {
     let octokit = new Octokit({
         auth: options.token,
         baseUrl: options.baseUrl
