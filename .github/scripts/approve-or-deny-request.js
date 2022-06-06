@@ -42,8 +42,6 @@ async function isAuthorized(context, octokit) {
             username: context.payload.comment.user.login
         })
 
-        console.log(`membership: ${JSON.stringify(membership)}`);
-
         if (membership.data.state == 'active') {
             return true;
         } else {
