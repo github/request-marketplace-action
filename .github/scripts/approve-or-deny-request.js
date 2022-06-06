@@ -9,6 +9,8 @@ module.exports = async ({github, context, options}) => {
         baseUrl: options.baseUrl
     });
 
+    console.log(JSON.stringify(context));
+
     try {
         let membership = await octokit.request(`GET /orgs/${actionsApprovedOrg}/teams/${actionsApproverTeam}/memberships/${options.actor}`, {
             org: actionsApprovedOrg,
