@@ -26,5 +26,5 @@ jobs:
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
+          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' , actor: '${{ github.actor }}'};
           await require('./.github/scripts/approve-or-deny-request.js')({github, context, options});

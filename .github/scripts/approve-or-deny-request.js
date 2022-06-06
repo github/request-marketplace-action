@@ -10,10 +10,10 @@ module.exports = async ({github, context, options}) => {
     });
 
     try {
-        let membership = await octokit.request(`GET /orgs/${actionsApprovedOrg}/teams/${actionsApproverTeam}/memberships/${payload.comment.user.login}`, {
+        let membership = await octokit.request(`GET /orgs/${actionsApprovedOrg}/teams/${actionsApproverTeam}/memberships/${options.actor}`, {
             org: actionsApprovedOrg,
             team_slug: actionsApproverTeam,
-            username: payload.comment.user.login
+            username: options.actor
         })
 
         console.log(`membership: ${JSON.stringify(membership)}`);
