@@ -14,8 +14,7 @@ const github = new Octokit({
 
 const options = {
     token: "secret123",
-    baseUrl: "https://github.robandpdx.demo-stack.com/api/v3",
-    actor: 'octocat'
+    baseUrl: "https://github.robandpdx.demo-stack.com/api/v3"
 };
 
 const context = {
@@ -26,15 +25,27 @@ const context = {
         organization: {
             login: "robandpdx-volcano",
             repos_url: "https://api.github.com/orgs/robandpdx-volcano/repos"
+        },
+        comment: {
+            user: {
+                login: "octocat"
+            },
+            body: "approve"
         }
     }
 }
 
-const membershipResonse = JSON.parse(fs.readFileSync("./mocks/membership-response.json", "utf-8"));
+const payload = {
+    owner: "hashicorp-contrib",
+    repo:"setup-packer",
+    ref: "v1"
+}
+
+const membershipResponse = JSON.parse(fs.readFileSync("./mocks/membership-response.json", "utf-8"));
 const issueCommentCreated = JSON.parse(fs.readFileSync("./mocks/issue-comment-created.json", "utf-8"));
 
 test.before.each(() => {
-    membershipResonse.sate = "active";
+    membershipResponse.state = "active";
 });
 test.after.each(() => {
     // nothing to do here
@@ -45,12 +56,6 @@ test("Fail the workflow because the repo already exists", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
     mock.get(`/repos/actions-approved/setup-packer_v1?owner=actions-approved&repo=setup-packer_v1`)
          .reply(201);
-
-    let payload = {
-        owner: "hashicorp-contrib",
-        repo:"setup-packer",
-        ref: "v1"
-    }
 
     try {
         await require('./initialize-request.js')({github, context, payload, options});
@@ -68,7 +73,6 @@ test("Create the repo because it doesn't exist", async function () {
 
     mock.post(`/orgs/actions-approved/repos`, 
     (requestBody) => {
-        console.log(requestBody);
         assert.equal(requestBody.name, "setup-packer_v1");
         assert.equal(requestBody.org, "actions-approved");
         assert.equal(requestBody.private, true);
@@ -80,12 +84,6 @@ test("Create the repo because it doesn't exist", async function () {
         return true;
     }
     ).reply(201);
-    
-    let payload = {
-        owner: "hashicorp-contrib",
-        repo:"setup-packer",
-        ref: "v1"
-    }
 
     await require('./initialize-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);
@@ -94,12 +92,16 @@ test("Create the repo because it doesn't exist", async function () {
 // Change the repo visibility to public on approval
 test("Change the repo visibility to public on approval", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
-    membershipResonse.sate = "inactive";
-    mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/octocat?org=actions-approved&team_slug=actions-approvers&username=octocat`)
-    .reply(200, membershipResonse);
-    
-    let payload = issueCommentCreated
-
+    mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
+    .reply(200, membershipResponse);
+    mock.patch(`/repos/actions-approved/setup-packer_v1`,
+    (requestBody) => {
+        assert.equal(requestBody.owner, "actions-approved");
+        assert.equal(requestBody.repo, "setup-packer_v1");
+        assert.equal(requestBody.private, false);
+        return true;
+    })
+    .reply(200);
 
     await require('./approve-or-deny-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);
@@ -107,13 +109,19 @@ test("Change the repo visibility to public on approval", async function () {
 
 // Change the repo to archived on denial
 test("Change the repo to archived on denial", async function () {
+    context.payload.comment.body = "deny"
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
-    membershipResonse.sate = "inactive";
-    mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/octocat?org=actions-approved&team_slug=actions-approvers&username=octocat`)
-    .reply(200, membershipResonse);
-    
-    let payload = issueCommentCreated
-
+    mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
+    .reply(200, membershipResponse);
+    mock.patch(`/repos/actions-approved/setup-packer_v1`,
+    (requestBody) => {
+        console.log(requestBody);
+        assert.equal(requestBody.owner, "actions-approved");
+        assert.equal(requestBody.repo, "setup-packer_v1");
+        assert.equal(requestBody.archived, true);
+        return true;
+    })
+    .reply(200);
 
     await require('./approve-or-deny-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);
@@ -122,12 +130,8 @@ test("Change the repo to archived on denial", async function () {
 // Membership not active 404
 test("Membership not active 404", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
-
-    mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/octocat?org=actions-approved&team_slug=actions-approvers&username=octocat`)
+    mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
     .reply(404);
-    
-    let payload = issueCommentCreated
-
 
     await require('./approve-or-deny-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);
@@ -135,13 +139,11 @@ test("Membership not active 404", async function () {
 
 // Membership not active
 test("Membership not active", async function () {
+    membershipResponse.state = "inactive";
+
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
-
-    mock.get(`/orgs/actions-approved/teams/actions-approvers/memberships/octocat?org=actions-approved&team_slug=actions-approvers&username=octocat`)
-    .reply(200, membershipResonse);
-    
-    let payload = issueCommentCreated
-
+    mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
+    .reply(200, membershipResponse);
 
     await require('./approve-or-deny-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);

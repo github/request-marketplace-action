@@ -8,6 +8,13 @@ jobs:
   approve-or-deny-request:
     runs-on: self-hosted
     steps:
+    - name: Get JSON Data out of Issue Request
+      uses: peter-murray/issue-body-parser-action@v1
+      id: issue_body_parser_request
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_id: ${{ github.event.issue.number }}
+        payload_marker: request
     - name: Check out scripts
       uses: actions/checkout@v2
     - name: Setup Node
@@ -26,5 +33,6 @@ jobs:
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' , actor: '${{ github.actor }}'};
-          await require('./.github/scripts/approve-or-deny-request.js')({github, context, options});
+          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}'};
+          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
+          await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});
