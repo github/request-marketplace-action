@@ -20,7 +20,13 @@ const options = {
 const context = {
     payload: {
         repository: {
-            name: "stale-repo-archiver",
+            name: "request-marketplace-action",
+            owner: {
+                login: "admin-ops"
+            }
+        },
+        issue: {
+            number: 12
         },
         organization: {
             login: "robandpdx-volcano",
@@ -99,9 +105,16 @@ test("Change the repo visibility to public on approval", async function () {
         assert.equal(requestBody.owner, "actions-approved");
         assert.equal(requestBody.repo, "setup-packer_v1");
         assert.equal(requestBody.private, false);
+        assert.equal(requestBody.archived, false);
         return true;
-    })
-    .reply(200);
+    }).reply(200);
+    mock.patch(`/repos/admin-ops/request-marketplace-action/issues/12`,
+    (requestBody) => {
+        assert.equal(requestBody.owner, "admin-ops");
+        assert.equal(requestBody.repo, "request-marketplace-action");
+        assert.equal(requestBody.state, 'closed');
+        return true;
+    }).reply(200);
 
     await require('./approve-or-deny-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);
@@ -118,10 +131,17 @@ test("Change the repo to archived on denial", async function () {
         console.log(requestBody);
         assert.equal(requestBody.owner, "actions-approved");
         assert.equal(requestBody.repo, "setup-packer_v1");
+        assert.equal(requestBody.private, true);
         assert.equal(requestBody.archived, true);
         return true;
-    })
-    .reply(200);
+    }).reply(200);
+    mock.patch(`/repos/admin-ops/request-marketplace-action/issues/12`,
+    (requestBody) => {
+        assert.equal(requestBody.owner, "admin-ops");
+        assert.equal(requestBody.repo, "request-marketplace-action");
+        assert.equal(requestBody.state, 'closed');
+        return true;
+    }).reply(200);
 
     await require('./approve-or-deny-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);

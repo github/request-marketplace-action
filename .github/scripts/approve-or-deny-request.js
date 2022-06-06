@@ -11,22 +11,22 @@ module.exports = async ({github, context, payload, options}) => {
         baseUrl: options.baseUrl
     });
 
+    let repoUpdate = {
+        owner: `${actionsApprovedOrg}`,
+        repo: `${payload.repo}_${payload.ref}`
+    }
     if (context.payload.comment.body.includes('approve') && await isAuthorized(context, octokit)) {
         // appove the request
         console.log(`Approving the request`);
-        await octokit.request(`PATCH /repos/${actionsApprovedOrg}/${payload.repo}_${payload.ref}`, {
-            owner: `${actionsApprovedOrg}`,
-            repo: `${payload.repo}_${payload.ref}`,
-            private: false
-        });
+        repoUpdate.private = false;
+        repoUpdate.archived = false;
+        await updateRepoCloseIssue(context, octokit, repoUpdate);
     } else if (context.payload.comment.body.includes('deny') && await isAuthorized(context, octokit)) {
         // deny the request
         console.log(`Denying the request, archiving the repo`);
-        await octokit.request(`PATCH /repos/${actionsApprovedOrg}/${payload.repo}_${payload.ref}`, {
-            owner: `${actionsApprovedOrg}`,
-            repo: `${payload.repo}_${payload.ref}`,
-            archived: true
-        });
+        repoUpdate.private = true;
+        repoUpdate.archived = true;
+        await updateRepoCloseIssue(context, octokit, repoUpdate);
     } else {
         // do nothing
         console.log('Do nothing');
@@ -51,4 +51,15 @@ async function isAuthorized(context, octokit) {
         console.log(`error: ${error}`);
         return false;
     }
+}
+
+async function updateRepoCloseIssue(context, octokit, repoUpdate) {
+    // Update the repo and close the issue
+    await octokit.request(`PATCH /repos/${repoUpdate.owner}/${repoUpdate.repo}`, repoUpdate);
+    await octokit.request(`PATCH /repos/${context.payload.repository.owner.login}/${context.payload.repository.name}/issues/${context.payload.issue.number}`, {
+        owner: context.payload.repository.owner.login,
+        repo: context.payload.repository.name,
+        issue_number: context.payload.issue.number,
+        state: 'closed'
+    });
 }
