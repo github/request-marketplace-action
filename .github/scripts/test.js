@@ -28,10 +28,6 @@ const context = {
         issue: {
             number: 12
         },
-        organization: {
-            login: "robandpdx-volcano",
-            repos_url: "https://api.github.com/orgs/robandpdx-volcano/repos"
-        },
         comment: {
             user: {
                 login: "octocat"
