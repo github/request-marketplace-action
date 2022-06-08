@@ -14,7 +14,8 @@ const github = new Octokit({
 
 const options = {
     token: "secret123",
-    baseUrl: "https://github.robandpdx.demo-stack.com/api/v3"
+    baseUrl: "https://github.robandpdx.demo-stack.com/api/v3",
+    latestRelease: "v1.2.3"
 };
 
 const context = {
@@ -39,8 +40,7 @@ const context = {
 
 const payload = {
     owner: "hashicorp-contrib",
-    repo:"setup-packer",
-    ref: "v1"
+    repo:"setup-packer"
 }
 
 const membershipResponse = JSON.parse(fs.readFileSync("./mocks/membership-response.json", "utf-8"));
@@ -56,13 +56,13 @@ test.after.each(() => {
 // Fail the workflow because the repo already exists
 test("Fail the workflow because the repo already exists", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
-    mock.get(`/repos/actions-approved/setup-packer_v1?owner=actions-approved&repo=setup-packer_v1`)
+    mock.get(`/repos/actions-approved/setup-packer_v1.2.3?owner=actions-approved&repo=setup-packer_v1.2.3`)
          .reply(201);
 
     try {
         await require('./initialize-request.js')({github, context, payload, options});
     } catch (err) {
-        assert.equal(err.message, "Repo actions-approved/setup-packer_v1 already exists");
+        assert.equal(err.message, "Repo actions-approved/setup-packer_v1.2.3 already exists");
     }
         assert.equal(mock.pendingMocks(), []);
 });
@@ -70,18 +70,18 @@ test("Fail the workflow because the repo already exists", async function () {
 // Create the repo because it doesn't exist
 test("Create the repo because it doesn't exist", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
-    mock.get(`/repos/actions-approved/setup-packer_v1?owner=actions-approved&repo=setup-packer_v1`)
+    mock.get(`/repos/actions-approved/setup-packer_v1.2.3?owner=actions-approved&repo=setup-packer_v1.2.3`)
          .reply(404);
 
     mock.post(`/orgs/actions-approved/repos`, 
     (requestBody) => {
-        assert.equal(requestBody.name, "setup-packer_v1");
+        assert.equal(requestBody.name, "setup-packer_v1.2.3");
         assert.equal(requestBody.org, "actions-approved");
         assert.equal(requestBody.private, true);
         assert.equal(requestBody.has_issues, true);
         assert.equal(requestBody.has_projects, false);
         assert.equal(requestBody.has_wiki, false);
-        assert.equal(requestBody.description, "hashicorp-contrib/setup-packer@v1");
+        assert.equal(requestBody.description, "hashicorp-contrib/setup-packer@v1.2.3");
         assert.equal(requestBody.homepage, "https://github.com/hashicorp-contrib/setup-packer");
         return true;
     }
@@ -96,10 +96,10 @@ test("Change the repo visibility to public on approval", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
     mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
     .reply(200, membershipResponse);
-    mock.patch(`/repos/actions-approved/setup-packer_v1`,
+    mock.patch(`/repos/actions-approved/setup-packer_v1.2.3`,
     (requestBody) => {
         assert.equal(requestBody.owner, "actions-approved");
-        assert.equal(requestBody.repo, "setup-packer_v1");
+        assert.equal(requestBody.repo, "setup-packer_v1.2.3");
         assert.equal(requestBody.private, false);
         assert.equal(requestBody.archived, false);
         return true;
@@ -122,11 +122,11 @@ test("Change the repo to archived on denial", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
     mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
     .reply(200, membershipResponse);
-    mock.patch(`/repos/actions-approved/setup-packer_v1`,
+    mock.patch(`/repos/actions-approved/setup-packer_v1.2.3`,
     (requestBody) => {
         console.log(requestBody);
         assert.equal(requestBody.owner, "actions-approved");
-        assert.equal(requestBody.repo, "setup-packer_v1");
+        assert.equal(requestBody.repo, "setup-packer_v1.2.3");
         assert.equal(requestBody.private, true);
         assert.equal(requestBody.archived, true);
         return true;

@@ -29,15 +29,21 @@ jobs:
         npm install
     - name: Dump steps context
       run: echo '${{ toJSON(steps) }}'
-    - name: Create the repo actions-approved/ ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }} on GitHub Enterprise Server
+    - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
+      id: lookup_latest_release
+      run: |
+        export LATEST=`curl https://api.github.com/repos/${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}/releases/latest | jq -r .name`
+        echo "LATEST RELEASE: $LATEST"
+        echo "::set-output name=latest_release::$LATEST"
+    - name: Create the repo actions-approved/ ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }} on GitHub Enterprise Server
       uses: actions/github-script@main
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}' };
+          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
           const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
           await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
-    - name: Check out requested action repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}
+    - name: Check out requested action repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}
       run: |
         git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
     - name: Show the directory
@@ -50,10 +56,10 @@ jobs:
         if git checkout main; then
           git branch -m main-old
         fi
-        git checkout ${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}
-        git switch -c ${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}-branch
+        git checkout ${{ steps.lookup_latest_release.outputs.latest_release }}
+        git switch -c ${{ steps.lookup_latest_release.outputs.latest_release }}-branch
         git branch -m main
-        git remote add origin2 ${{ github.server_url }}/actions-approved/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}.git
+        git remote add origin2 ${{ github.server_url }}/actions-approved/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_$LATEST.git
         git push -u origin2 main
-        git push -u origin2 ${{ fromJson(steps.issue_body_parser_request.outputs.payload).ref }}
+        git push -u origin2 ${{ steps.lookup_latest_release.outputs.latest_release }}
         

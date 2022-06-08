@@ -14,8 +14,7 @@
     ```json request
     {
         "owner": "hashicorp",
-        "repo": "setup-terraform",
-        "ref": "v2"
+        "repo": "setup-terraform"
     }
     ```
 ```
@@ -24,8 +23,7 @@
     ```json request
     {
         "owner": "aws-actions",
-        "repo": "configure-aws-credentials",
-        "ref": "v1"
+        "repo": "configure-aws-credentials"
     }
     ```
 ```

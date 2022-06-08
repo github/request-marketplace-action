@@ -6,8 +6,7 @@ Include in your issue, the following markdown...
     ```json request
     {
         "owner": "hashicorp-contrib",
-        "repo": "setup-packer",
-        "ref": "v1"
+        "repo": "setup-packer"
     }
     ```
 ```

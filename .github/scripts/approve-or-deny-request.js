@@ -13,7 +13,7 @@ module.exports = async ({github, context, payload, options}) => {
 
     let repoUpdate = {
         owner: `${actionsApprovedOrg}`,
-        repo: `${payload.repo}_${payload.ref}`
+        repo: `${payload.repo}_${options.latestRelease}`
     }
     if (context.payload.comment.body.includes('approve') && await isAuthorized(context, octokit)) {
         // appove the request
@@ -31,7 +31,6 @@ module.exports = async ({github, context, payload, options}) => {
         // do nothing
         console.log('Do nothing');
     }
-    //console.log(JSON.stringify(context));
 }
 
 async function isAuthorized(context, octokit) {

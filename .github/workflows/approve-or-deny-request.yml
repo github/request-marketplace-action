@@ -28,11 +28,17 @@ jobs:
         npm install
     - name: Dump github context
       run: echo '${{ toJSON(github) }}'
+    - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
+      id: lookup_latest_release
+      run: |
+        export LATEST=`curl https://api.github.com/repos/${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}/releases/latest | jq -r .name`
+        echo "LATEST RELEASE: $LATEST"
+        echo "::set-output name=latest_release::$LATEST"
     - name: Approve or deny request
       uses: actions/github-script@main
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}'};
+          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
           const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
           await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});
