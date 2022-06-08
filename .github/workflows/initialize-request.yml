@@ -59,7 +59,7 @@ jobs:
         git checkout ${{ steps.lookup_latest_release.outputs.latest_release }}
         git switch -c ${{ steps.lookup_latest_release.outputs.latest_release }}-branch
         git branch -m main
-        git remote add origin2 ${{ github.server_url }}/actions-approved/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_$LATEST.git
+        git remote add origin2 ${{ github.server_url }}/actions-approved/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}.git
         git push -u origin2 main
         git push -u origin2 ${{ steps.lookup_latest_release.outputs.latest_release }}
         
