@@ -26,8 +26,6 @@ jobs:
       run: |
         cd .github/scripts
         npm install
-    - name: Dump github context
-      run: echo '${{ toJSON(github) }}'
     - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
       id: lookup_latest_release
       run: |
