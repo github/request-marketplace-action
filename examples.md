@@ -4,8 +4,7 @@
     ```json request
     {
         "owner": "hashicorp-contrib",
-        "repo": "setup-packer",
-        "ref": "v1"
+        "repo": "setup-packer"
     }
     ```
 ```
