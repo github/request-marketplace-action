@@ -15,7 +15,10 @@ const github = new Octokit({
 const options = {
     token: "secret123",
     baseUrl: "https://github.robandpdx.demo-stack.com/api/v3",
-    latestRelease: "v1.2.3"
+    latestRelease: "v1.2.3",
+    adminOpsOrg: "admin-ops",
+    actionsApprovedOrg: "actions-approved",
+    actionsApproverTeam: "actions-approvers"
 };
 
 const context = {

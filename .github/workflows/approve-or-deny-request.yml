@@ -37,6 +37,6 @@ jobs:
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', baseUrl: '${{ github.api_url }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
+          const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ secrets.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ secrets.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
           const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
           await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});

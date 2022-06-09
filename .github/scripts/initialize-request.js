@@ -1,7 +1,5 @@
 const { Octokit } = require("@octokit/rest");
 
-let actionsApprovedOrg = 'actions-approved';
-
 module.exports = async ({github, context, payload, options}) => {
     // Instantiate octokit with ghtoken and baseUrl for GHES
     let octokit = new Octokit({
@@ -11,8 +9,8 @@ module.exports = async ({github, context, payload, options}) => {
 
     let exitError = false;
     // check if the repo already exists
-    let repo = await octokit.request(`GET /repos/${actionsApprovedOrg}/${payload.repo}_${options.latestRelease}`, {
-        owner: actionsApprovedOrg,
+    let repo = await octokit.request(`GET /repos/${options.actionsApprovedOrg}/${payload.repo}_${options.latestRelease}`, {
+        owner: options.actionsApprovedOrg,
         repo: `${payload.repo}_${options.latestRelease}`
     })
     .then(response => {
@@ -24,8 +22,8 @@ module.exports = async ({github, context, payload, options}) => {
         // Repo does not exist, so we will create it
         console.log(error);
         console.log(`Creating repo ${payload.repo}_${options.latestRelease}`);
-        let response = await octokit.request(`POST /orgs/${actionsApprovedOrg}/repos`, {
-            org: actionsApprovedOrg,
+        let response = await octokit.request(`POST /orgs/${options.actionsApprovedOrg}/repos`, {
+            org: options.actionsApprovedOrg,
             name: `${payload.repo}_${options.latestRelease}`,
             description: `${payload.owner}/${payload.repo}@${options.latestRelease}`,
             homepage: `https://github.com/${payload.owner}/${payload.repo}`,
@@ -37,6 +35,6 @@ module.exports = async ({github, context, payload, options}) => {
     });
 
     if (exitError) {
-        throw new Error(`Repo ${actionsApprovedOrg}/${payload.repo}_${options.latestRelease} already exists`);
+        throw new Error(`Repo ${options.actionsApprovedOrg}/${payload.repo}_${options.latestRelease} already exists`);
     }
 }

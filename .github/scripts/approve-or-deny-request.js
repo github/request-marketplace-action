@@ -1,9 +1,5 @@
 const { Octokit } = require("@octokit/rest");
 
-let adminOpsOrg = 'admin-ops';
-let actionsApprovedOrg = 'actions-approved';
-let actionsApproverTeam = 'actions-approvers'
-
 module.exports = async ({github, context, payload, options}) => {
 
     let octokit = new Octokit({
@@ -12,16 +8,16 @@ module.exports = async ({github, context, payload, options}) => {
     });
 
     let repoUpdate = {
-        owner: `${actionsApprovedOrg}`,
+        owner: `${options.actionsApprovedOrg}`,
         repo: `${payload.repo}_${options.latestRelease}`
     }
-    if (context.payload.comment.body.includes('approve') && await isAuthorized(context, octokit)) {
+    if (context.payload.comment.body.includes('approve') && await isAuthorized(context, options, octokit)) {
         // appove the request
         console.log(`Approving the request`);
         repoUpdate.private = false;
         repoUpdate.archived = false;
         await updateRepoCloseIssue(context, octokit, repoUpdate);
-    } else if (context.payload.comment.body.includes('deny') && await isAuthorized(context, octokit)) {
+    } else if (context.payload.comment.body.includes('deny') && await isAuthorized(context, options, octokit)) {
         // deny the request
         console.log(`Denying the request, archiving the repo`);
         repoUpdate.private = true;
@@ -33,11 +29,11 @@ module.exports = async ({github, context, payload, options}) => {
     }
 }
 
-async function isAuthorized(context, octokit) {
+async function isAuthorized(context, options, octokit) {
     try {
-        let membership = await octokit.request(`GET /orgs/${adminOpsOrg}/teams/${actionsApproverTeam}/memberships/${context.payload.comment.user.login}`, {
-            org: adminOpsOrg,
-            team_slug: actionsApproverTeam,
+        let membership = await octokit.request(`GET /orgs/${options.adminOpsOrg}/teams/${options.actionsApproverTeam}/memberships/${context.payload.comment.user.login}`, {
+            org: options.adminOpsOrg,
+            team_slug: options.actionsApproverTeam,
             username: context.payload.comment.user.login
         })
 
