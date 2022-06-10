@@ -6,7 +6,7 @@ assignees: 'actions-approvers'
 ---
 Fill in the json fields below.
 
-![json fields](json-fields.png)
+https://github.com/[owner]/[repo]
 
 ```json request
 {
