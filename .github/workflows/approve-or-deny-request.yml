@@ -29,14 +29,18 @@ jobs:
     - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
       id: lookup_latest_release
       run: |
-        export LATEST=`curl https://api.github.com/repos/${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}/releases/latest | jq -r .name`
+        export URL=${{steps.parser.outputs.url}}
+        export OWNER=${${URL#"https://github.com/"}%/*}
+        export REPO=${${URL#"https://github.com/"}#*/}
+        export LATEST=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
         echo "LATEST RELEASE: $LATEST"
+        echo "::set-output name=owner::$OWNER"
+        echo "::set-output name=repo::$REPO"
         echo "::set-output name=latest_release::$LATEST"
     - name: Approve or deny request
       uses: actions/github-script@main
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ secrets.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ secrets.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
-          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
-          await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});
+          const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ secrets.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ secrets.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', owner: '${{ steps.lookup_latest_release.outputs.owner }}', repo: '${{ steps.lookup_latest_release.outputs.repo }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
+          await require('./.github/scripts/approve-or-deny-request.js')({github, context, options});

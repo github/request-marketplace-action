@@ -18,7 +18,9 @@ const options = {
     latestRelease: "v1.2.3",
     adminOpsOrg: "admin-ops",
     actionsApprovedOrg: "actions-approved",
-    actionsApproverTeam: "actions-approvers"
+    actionsApproverTeam: "actions-approvers",
+    owner: "hashicorp-contrib",
+    repo:"setup-packer"
 };
 
 const context = {
@@ -41,11 +43,6 @@ const context = {
     }
 }
 
-const payload = {
-    owner: "hashicorp-contrib",
-    repo:"setup-packer"
-}
-
 const membershipResponse = JSON.parse(fs.readFileSync("./mocks/membership-response.json", "utf-8"));
 const issueCommentCreated = JSON.parse(fs.readFileSync("./mocks/issue-comment-created.json", "utf-8"));
 
@@ -63,7 +60,7 @@ test("Fail the workflow because the repo already exists", async function () {
          .reply(201);
 
     try {
-        await require('./initialize-request.js')({github, context, payload, options});
+        await require('./initialize-request.js')({github, context, options});
     } catch (err) {
         assert.equal(err.message, "Repo actions-approved/setup-packer_v1.2.3 already exists");
     }
@@ -90,7 +87,7 @@ test("Create the repo because it doesn't exist", async function () {
     }
     ).reply(201);
 
-    await require('./initialize-request.js')({github, context, payload, options});
+    await require('./initialize-request.js')({github, context, options});
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -115,7 +112,7 @@ test("Change the repo visibility to public on approval", async function () {
         return true;
     }).reply(200);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await require('./approve-or-deny-request.js')({github, context, options});
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -142,7 +139,7 @@ test("Change the repo to archived on denial", async function () {
         return true;
     }).reply(200);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await require('./approve-or-deny-request.js')({github, context, options});
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -152,7 +149,7 @@ test("Membership not active 404", async function () {
     mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
     .reply(404);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await require('./approve-or-deny-request.js')({github, context, options});
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -164,7 +161,7 @@ test("Membership not active", async function () {
     mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
     .reply(200, membershipResponse);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await require('./approve-or-deny-request.js')({github, context, options});
     assert.equal(mock.pendingMocks(), []);
 });
 
