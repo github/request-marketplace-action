@@ -5,10 +5,8 @@ title: 'Request: [MARKETPLACE_ACTION]'
 assignees: 'actions-approvers'
 ---
 Fill in the json fields below.
-```
-https://github.com/hashicorp-contrib/setup-packer  
-                   ^owner            ^repo
-``` 
+
+![json fields](json-fields.png)
 
 ```json request
 {
