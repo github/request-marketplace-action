@@ -4,5 +4,16 @@ about: Request an action from the marketplace on GitHub.com
 title: 'Request: [MARKETPLACE_ACTION]'
 assignees: 'actions-approvers'
 ---
-action-repo: [URL]
+Fill in the json fields below.
+```
+https://github.com/hashicorp-contrib/setup-packer  
+                   ^owner            ^repo
+``` 
+
+```json request
+{
+    "owner": "hashicorp-contrib",
+    "repo": "setup-packer"
+}
+```
 
