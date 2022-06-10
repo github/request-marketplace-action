@@ -8,9 +8,13 @@ jobs:
   initialize-request:
     runs-on: self-hosted
     steps:
-    - name: Get fields from issue template
-      uses: actionsdesk/parse-issue@v1
-      id: parser
+    - name: Get JSON Data out of Issue Request
+      uses: peter-murray/issue-body-parser-action@v1
+      id: issue_body_parser_request
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        issue_id: ${{ github.event.issue.number }}
+        payload_marker: request
     - name: Check out scripts
       uses: actions/checkout@v2
 
@@ -25,27 +29,23 @@ jobs:
         npm install
     - name: Dump steps context
       run: echo '${{ toJSON(steps) }}'
-    - name: Lookup the latest release of ${{steps.parser.outputs.url}}
+    - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
       id: lookup_latest_release
       run: |
-        export URL=${{steps.parser.outputs.url}}
-        export OWNER=${${URL#"https://github.com/"}%/*}
-        export REPO=${${URL#"https://github.com/"}#*/}
-        export LATEST=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
+        export LATEST=`curl https://api.github.com/repos/${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}/releases/latest | jq -r .name`
         echo "LATEST RELEASE: $LATEST"
-        echo "::set-output name=owner::$OWNER"
-        echo "::set-output name=repo::$REPO"
         echo "::set-output name=latest_release::$LATEST"
-    - name: Create the repo ${{ steps.lookup_latest_release.outputs.repo }}_${{ steps.lookup_latest_release.outputs.latest_release }} on GitHub Enterprise Server
+    - name: Create the repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }} on GitHub Enterprise Server
       uses: actions/github-script@main
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', owner: '${{ steps.lookup_latest_release.outputs.owner }}', repo: '${{ steps.lookup_latest_release.outputs.repo }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
-          await require('./.github/scripts/initialize-request.js')({github, context, options});
-    - name: Check out requested action repo ${{steps.parser.outputs.url}}
+          const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
+          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
+          await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
+    - name: Check out requested action repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}
       run: |
-        git clone ${{steps.parser.outputs.url}} requested-action
+        git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
     - name: Show the directory
       run: ls -l requested-action
     - name: Push requested action to private repo in $ACTIONS_APPROVED_ORG org on GitHub Enterprise Server
@@ -59,7 +59,7 @@ jobs:
         git checkout ${{ steps.lookup_latest_release.outputs.latest_release }}
         git switch -c ${{ steps.lookup_latest_release.outputs.latest_release }}-branch
         git branch -m main
-        git remote add origin2 ${{ github.server_url }}/${{ secrets.ACTIONS_APPROVED_ORG }}/${{ steps.lookup_latest_release.outputs.repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}.git
+        git remote add origin2 ${{ github.server_url }}/${{ secrets.ACTIONS_APPROVED_ORG }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}.git
         git push -u origin2 main
         git push -u origin2 ${{ steps.lookup_latest_release.outputs.latest_release }}
         

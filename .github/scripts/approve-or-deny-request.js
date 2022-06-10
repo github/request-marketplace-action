@@ -1,6 +1,6 @@
 const { Octokit } = require("@octokit/rest");
 
-module.exports = async ({github, context, options}) => {
+module.exports = async ({github, context, payload, options}) => {
 
     let octokit = new Octokit({
         auth: options.token,
@@ -9,7 +9,7 @@ module.exports = async ({github, context, options}) => {
 
     let repoUpdate = {
         owner: `${options.actionsApprovedOrg}`,
-        repo: `${options.repo}_${options.latestRelease}`
+        repo: `${payload.repo}_${options.latestRelease}`
     }
     if (context.payload.comment.body.includes('approve') && await isAuthorized(context, options, octokit)) {
         // appove the request

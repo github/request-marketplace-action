@@ -1,6 +1,6 @@
 const { Octokit } = require("@octokit/rest");
 
-module.exports = async ({github, context, options}) => {
+module.exports = async ({github, context, payload, options}) => {
     // Instantiate octokit with ghtoken and baseUrl for GHES
     let octokit = new Octokit({
         auth: options.token,
@@ -9,24 +9,24 @@ module.exports = async ({github, context, options}) => {
 
     let exitError = false;
     // check if the repo already exists
-    let repo = await octokit.request(`GET /repos/${options.actionsApprovedOrg}/${options.repo}_${options.latestRelease}`, {
+    let repo = await octokit.request(`GET /repos/${options.actionsApprovedOrg}/${payload.repo}_${options.latestRelease}`, {
         owner: options.actionsApprovedOrg,
-        repo: `${options.repo}_${options.latestRelease}`
+        repo: `${payload.repo}_${options.latestRelease}`
     })
     .then(response => {
         // Repo exists, so we will fail the remainder of the workflow
-        console.log(`Repo ${options.repo}_${options.latestRelease} already exists`);
+        console.log(`Repo ${payload.repo}_${options.latestRelease} already exists`);
         exitError = true;
     })
     .catch(async error => {
         // Repo does not exist, so we will create it
         console.log(error);
-        console.log(`Creating repo ${options.repo}_${options.latestRelease}`);
+        console.log(`Creating repo ${payload.repo}_${options.latestRelease}`);
         let response = await octokit.request(`POST /orgs/${options.actionsApprovedOrg}/repos`, {
             org: options.actionsApprovedOrg,
-            name: `${options.repo}_${options.latestRelease}`,
-            description: `${options.owner}/${options.repo}@${options.latestRelease}`,
-            homepage: `https://github.com/${options.owner}/${options.repo}`,
+            name: `${payload.repo}_${options.latestRelease}`,
+            description: `${payload.owner}/${payload.repo}@${options.latestRelease}`,
+            homepage: `https://github.com/${payload.owner}/${payload.repo}`,
             'private': true,
             has_issues: true,
             has_projects: false,
@@ -35,6 +35,6 @@ module.exports = async ({github, context, options}) => {
     });
 
     if (exitError) {
-        throw new Error(`Repo ${options.actionsApprovedOrg}/${options.repo}_${options.latestRelease} already exists`);
+        throw new Error(`Repo ${options.actionsApprovedOrg}/${payload.repo}_${options.latestRelease} already exists`);
     }
 }
