@@ -25,10 +25,10 @@ jobs:
         npm install
     - name: Dump steps context
       run: echo '${{ toJSON(steps) }}'
-    - name: Lookup the latest release of ${{steps.parser.outputs.url}}
+    - name: Lookup the latest release of ${{ steps.parser.outputs.url }}
       id: lookup_latest_release
       run: |
-        export URL=${{steps.parser.outputs.url}}
+        export URL=${{ steps.parser.outputs.url }}
         export OWNER=${${URL#"https://github.com/"}%/*}
         export REPO=${${URL#"https://github.com/"}#*/}
         export LATEST=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
@@ -43,9 +43,9 @@ jobs:
         script: |
           const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', owner: '${{ steps.lookup_latest_release.outputs.owner }}', repo: '${{ steps.lookup_latest_release.outputs.repo }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
           await require('./.github/scripts/initialize-request.js')({github, context, options});
-    - name: Check out requested action repo ${{steps.parser.outputs.url}}
+    - name: Check out requested action repo ${{ steps.parser.outputs.url }}
       run: |
-        git clone ${{steps.parser.outputs.url}} requested-action
+        git clone ${{ steps.parser.outputs.url }} requested-action
     - name: Show the directory
       run: ls -l requested-action
     - name: Push requested action to private repo in $ACTIONS_APPROVED_ORG org on GitHub Enterprise Server
