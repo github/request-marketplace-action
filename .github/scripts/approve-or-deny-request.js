@@ -14,13 +14,13 @@ module.exports = async ({github, context, payload, options}) => {
     if (context.payload.comment.body.includes('approve') && await isAuthorized(context, options, octokit)) {
         // appove the request
         console.log(`Approving the request`);
-        repoUpdate.visibility = "internal";
+        repoUpdate.private = false;
         repoUpdate.archived = false;
         await updateRepoCloseIssue(context, octokit, repoUpdate);
     } else if (context.payload.comment.body.includes('deny') && await isAuthorized(context, options, octokit)) {
         // deny the request
         console.log(`Denying the request, archiving the repo`);
-        repoUpdate.visibility = "private";
+        repoUpdate.private = true;
         repoUpdate.archived = true;
         await updateRepoCloseIssue(context, octokit, repoUpdate);
     } else {
@@ -51,11 +51,6 @@ async function isAuthorized(context, options, octokit) {
 async function updateRepoCloseIssue(context, octokit, repoUpdate) {
     // Update the repo and close the issue
     await octokit.request(`PATCH /repos/${repoUpdate.owner}/${repoUpdate.repo}`, repoUpdate);
-    await octokit.request(`PUT /repos/${repoUpdate.owner}/${repoUpdate.repo}/actions/permissions/access`, {
-        owner: repoUpdate.owner,
-        repo: repoUpdate.repo,
-        access_level: 'enterprise'
-    });
     await octokit.request(`PATCH /repos/${context.payload.repository.owner.login}/${context.payload.repository.name}/issues/${context.payload.issue.number}`, {
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
