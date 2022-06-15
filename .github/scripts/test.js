@@ -21,6 +21,14 @@ const options = {
     actionsApproverTeam: "actions-approvers"
 };
 
+const meta34 = {
+    installed_version: "3.4.0"
+}
+
+const meta35 = {
+    installed_version: "3.5.0"
+}
+
 const context = {
     payload: {
         repository: {
@@ -51,6 +59,7 @@ const issueCommentCreated = JSON.parse(fs.readFileSync("./mocks/issue-comment-cr
 
 test.before.each(() => {
     membershipResponse.state = "active";
+    options.baseUrl = "https://github.robandpdx.demo-stack.com/api/v3";
 });
 test.after.each(() => {
     // nothing to do here
@@ -94,9 +103,10 @@ test("Create the repo because it doesn't exist", async function () {
     assert.equal(mock.pendingMocks(), []);
 });
 
-// Change the repo visibility to internal on approval
-test("Change the repo visibility to internal on approval", async function () {
+// Change the repo visibility to internal on approval GHES 3.5
+test("Change the repo visibility to internal on approval GHES 3.5", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
+    mock.get(`/meta`).reply(200, meta35);
     mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
     .reply(200, membershipResponse);
     mock.patch(`/repos/actions-approved/setup-packer_v1.2.3`,
@@ -119,6 +129,66 @@ test("Change the repo visibility to internal on approval", async function () {
         assert.equal(requestBody.owner, "actions-approved");
         assert.equal(requestBody.repo, "setup-packer_v1.2.3");
         assert.equal(requestBody.access_level, 'enterprise');
+        return true;
+    }).reply(200);
+
+    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    assert.equal(mock.pendingMocks(), []);
+});
+
+// Change the repo visibility to internal on approval GHEC
+test("Change the repo visibility to internal on approval GHEC", async function () {
+    options.baseUrl = "https://api.github.com";
+
+    let mock = nock("https://api.github.com");
+    mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
+    .reply(200, membershipResponse);
+    mock.patch(`/repos/actions-approved/setup-packer_v1.2.3`,
+    (requestBody) => {
+        assert.equal(requestBody.owner, "actions-approved");
+        assert.equal(requestBody.repo, "setup-packer_v1.2.3");
+        assert.equal(requestBody.visibility, 'internal');
+        assert.equal(requestBody.archived, false);
+        return true;
+    }).reply(200);
+    mock.patch(`/repos/admin-ops/request-marketplace-action/issues/12`,
+    (requestBody) => {
+        assert.equal(requestBody.owner, "admin-ops");
+        assert.equal(requestBody.repo, "request-marketplace-action");
+        assert.equal(requestBody.state, 'closed');
+        return true;
+    }).reply(200);
+    mock.put(`/repos/actions-approved/setup-packer_v1.2.3/actions/permissions/access`,
+    (requestBody) => {
+        assert.equal(requestBody.owner, "actions-approved");
+        assert.equal(requestBody.repo, "setup-packer_v1.2.3");
+        assert.equal(requestBody.access_level, 'enterprise');
+        return true;
+    }).reply(200);
+
+    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    assert.equal(mock.pendingMocks(), []);
+});
+
+// Change the repo visibility to public on approval GHES 3.4
+test("Change the repo visibility to public on approval GHES 3.4", async function () {
+    let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
+    mock.get(`/meta`).reply(200, meta34);
+    mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
+    .reply(200, membershipResponse);
+    mock.patch(`/repos/actions-approved/setup-packer_v1.2.3`,
+    (requestBody) => {
+        assert.equal(requestBody.owner, "actions-approved");
+        assert.equal(requestBody.repo, "setup-packer_v1.2.3");
+        assert.equal(requestBody.visibility, 'public');
+        assert.equal(requestBody.archived, false);
+        return true;
+    }).reply(200);
+    mock.patch(`/repos/admin-ops/request-marketplace-action/issues/12`,
+    (requestBody) => {
+        assert.equal(requestBody.owner, "admin-ops");
+        assert.equal(requestBody.repo, "request-marketplace-action");
+        assert.equal(requestBody.state, 'closed');
         return true;
     }).reply(200);
 

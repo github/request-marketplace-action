@@ -12,17 +12,27 @@ module.exports = async ({github, context, payload, options}) => {
         repo: `${payload.repo}_${options.latestRelease}`
     }
     if (context.payload.comment.body.includes('approve') && await isAuthorized(context, options, octokit)) {
+        // Check GitHub.com or GHEC version
+        let internalRepoToggle = true;
+        if (options.baseUrl != 'https://api.github.com') {
+            let meta = await octokit.request('GET /meta', {});
+            if (/^[3]{1}\.[0-4]{1}/.test(meta.data.installed_version)) {
+                internalRepoToggle = false;
+            }
+        }
         // appove the request
         console.log(`Approving the request`);
-        repoUpdate.visibility = 'internal';
+        repoUpdate.visibility = internalRepoToggle ? 'internal' : 'public';
         repoUpdate.archived = false;
         await updateRepoCloseIssue(context, octokit, repoUpdate);
         // set level of access for workflows outside of the repository
-        await octokit.request(`PUT /repos/${repoUpdate.owner}/${repoUpdate.repo}/actions/permissions/access`, {
-            owner: repoUpdate.owner,
-            repo: repoUpdate.repo,
-            access_level: 'enterprise'
-          })
+        if (internalRepoToggle) {
+            await octokit.request(`PUT /repos/${repoUpdate.owner}/${repoUpdate.repo}/actions/permissions/access`, {
+                owner: repoUpdate.owner,
+                repo: repoUpdate.repo,
+                access_level: 'enterprise'
+            });
+        }
     } else if (context.payload.comment.body.includes('deny') && await isAuthorized(context, options, octokit)) {
         // deny the request
         console.log(`Denying the request, archiving the repo`);
