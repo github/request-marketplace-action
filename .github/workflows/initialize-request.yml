@@ -59,7 +59,7 @@ jobs:
         git switch -c ${{ steps.lookup_latest_release.outputs.latest_release }}-branch
         git branch -m main
         export GHHOST=${{ github.server_url }}
-        git remote add origin2 https://${{ secrets.TOKEN }}:${GHHOST#https://}/${{ secrets.ACTIONS_APPROVED_ORG }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}.git
+        git remote add origin2 https://${{ secrets.TOKEN }}@${GHHOST#https://}/${{ secrets.ACTIONS_APPROVED_ORG }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}.git
         git push -u origin2 main
         git push -u origin2 ${{ steps.lookup_latest_release.outputs.latest_release }}
         
