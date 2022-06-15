@@ -26,7 +26,7 @@ See [examples.md](examples.md) for more examples.
 1. Configure the org where this repo resides to allow the following actions:
     - actions/setup-node@v2
     - peter-murray/issue-body-parser-action@v1
-1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has admin:org and repo rights on your GHEC server.
+1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has `admin:org`, `repo`, and `workflow` scope on your GHEC server.
 1. Configure this repo with the following repo secrets and note their values below. These are not really secrets, but rather config values that should be known.  
 `ADMIN_OPS_ORG`: admin-ops  
 `ACTIONS_APPROVED_ORG`: actions-approved  
