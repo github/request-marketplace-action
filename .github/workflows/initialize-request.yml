@@ -17,9 +17,6 @@ jobs:
         payload_marker: request
     - name: Check out scripts
       uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.TOKEN }}
-
     - name: Setup Node
       uses: actions/setup-node@v2
       with:
@@ -61,7 +58,7 @@ jobs:
         git checkout ${{ steps.lookup_latest_release.outputs.latest_release }}
         git switch -c ${{ steps.lookup_latest_release.outputs.latest_release }}-branch
         git branch -m main
-        git remote add origin2 ${{ github.server_url }}/${{ secrets.ACTIONS_APPROVED_ORG }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}.git
+        git remote add origin2 https://${{ secrets.TOKEN }}:${${{ github.server_url }}#https://}/${{ secrets.ACTIONS_APPROVED_ORG }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.lookup_latest_release.outputs.latest_release }}.git
         git push -u origin2 main
         git push -u origin2 ${{ steps.lookup_latest_release.outputs.latest_release }}
         
