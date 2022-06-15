@@ -14,13 +14,19 @@ module.exports = async ({github, context, payload, options}) => {
     if (context.payload.comment.body.includes('approve') && await isAuthorized(context, options, octokit)) {
         // appove the request
         console.log(`Approving the request`);
-        repoUpdate.private = false;
+        repoUpdate.visibility = 'internal';
         repoUpdate.archived = false;
         await updateRepoCloseIssue(context, octokit, repoUpdate);
+        // set level of access for workflows outside of the repository
+        await octokit.request(`PUT /repos/${repoUpdate.owner}/${repoUpdate.repo}/actions/permissions/access`, {
+            owner: repoUpdate.owner,
+            repo: repoUpdate.repo,
+            access_level: 'enterprise'
+          })
     } else if (context.payload.comment.body.includes('deny') && await isAuthorized(context, options, octokit)) {
         // deny the request
         console.log(`Denying the request, archiving the repo`);
-        repoUpdate.private = true;
+        repoUpdate.visibility = 'private';
         repoUpdate.archived = true;
         await updateRepoCloseIssue(context, octokit, repoUpdate);
     } else {

@@ -27,7 +27,7 @@ module.exports = async ({github, context, payload, options}) => {
             name: `${payload.repo}_${options.latestRelease}`,
             description: `${payload.owner}/${payload.repo}@${options.latestRelease}`,
             homepage: `https://github.com/${payload.owner}/${payload.repo}`,
-            'private': true,
+            visibility: 'private',
             has_issues: true,
             has_projects: false,
             has_wiki: false
