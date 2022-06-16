@@ -11,7 +11,8 @@ https://github.com/[owner]/[repo]
 ```json request
 {
     "owner": "hashicorp-contrib",
-    "repo": "setup-packer"
+    "repo": "setup-packer",
+    "version": "latest"
 }
 ```
 

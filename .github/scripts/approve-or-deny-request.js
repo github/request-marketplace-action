@@ -9,7 +9,7 @@ module.exports = async ({github, context, payload, options}) => {
 
     let repoUpdate = {
         owner: `${options.actionsApprovedOrg}`,
-        repo: `${payload.repo}_${options.latestRelease}`
+        repo: `${payload.repo}_${options.version}`
     }
     if (context.payload.comment.body.includes('approve') && await isAuthorized(context, options, octokit)) {
         // Check GitHub.com or GHEC version

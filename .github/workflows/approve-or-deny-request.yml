@@ -27,16 +27,19 @@ jobs:
         cd .github/scripts
         npm install
     - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
-      id: lookup_latest_release
+      id: get_version
       run: |
-        export LATEST=`curl https://api.github.com/repos/${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}/releases/latest | jq -r .name`
-        echo "LATEST RELEASE: $LATEST"
-        echo "::set-output name=latest_release::$LATEST"
+        if [ ${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }} != 'latest' ]; then
+          export VERSION=`curl https://api.github.com/repos/${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}/releases/latest | jq -r .name`
+        else
+          export VERSION=${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }}
+        echo "VERSION RELEASE: $VERSION"
+        echo "::set-output name=version::$VERSION"
     - name: Approve or deny request
       uses: actions/github-script@main
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ secrets.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ secrets.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', latestRelease: '${{ steps.lookup_latest_release.outputs.latest_release }}' };
+          const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ secrets.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ secrets.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', version: '${{ steps.get_version.outputs.version }}' };
           const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
           await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});
