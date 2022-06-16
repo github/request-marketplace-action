@@ -29,11 +29,12 @@ jobs:
     - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
       id: get_version
       run: |
-        if [ ${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }} != 'latest' ]; then
+        if [ '${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }}' != 'latest' ]; then
           export VERSION=`curl https://api.github.com/repos/${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}/releases/latest | jq -r .name`
         else
           export VERSION=${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }}
-        echo "VERSION RELEASE: $VERSION"
+        fi
+        echo "VERSION: $VERSION"
         echo "::set-output name=version::$VERSION"
     - name: Approve or deny request
       uses: actions/github-script@main
