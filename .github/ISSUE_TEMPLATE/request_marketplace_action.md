@@ -14,6 +14,7 @@ assignees: 'actions-approvers'
 {
     "owner": "actions",
     "repo": "toolkit"
+    "version": "latest"
 }
 ```
 
