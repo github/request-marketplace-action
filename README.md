@@ -24,7 +24,13 @@ See [examples.md](examples.md) for more examples.
 
 ## Prerequisites
 1. [GitHub Enterprise Server v3.x](https://docs.github.com/en/enterprise-server@3.5/get-started/onboarding/getting-started-with-github-enterprise-server) or [GitHub Enterprise Managed Users (EMU) Account on GitHub.com](https://docs.github.com/en/enterprise-cloud@latest/admin/identity-and-access-management/using-enterprise-managed-users-for-iam/about-enterprise-managed-users).
-1. You must have [enabled GitHub Actions for GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@3.4/admin/github-actions/enabling-github-actions-for-github-enterprise-server)
+1. You must have [enabled GitHub Actions for GitHub Enterprise Server](https://docs.github.com/en/enterprise-server@3.4/admin/github-actions/enabling-github-actions-for-github-enterprise-server).
+1. You have an org created where you intend to host your approved actions. Let's call it `actions-approved` for now.
+1. You have an org created where you intend to host the repos that will run these workflow. Let's call it `admin-ops` for now.
+1. You have a team created within the `admin-ops` org. Members of this team will be able to approve or deny requests for marketplace actions. Let's call it `actions-approvers` for now.
+1. You need runners available to the repo or org where you intend to run these workflows.
+
+## Setup
 1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has `admin:org`, `repo`, and `workflow` scope on your GHEC server.
 1. Configure this repo with the following repo secrets and note their values below. These are not really secrets, but rather config values that should be known.  
 `ADMIN_OPS_ORG`: admin-ops  
@@ -33,3 +39,9 @@ See [examples.md](examples.md) for more examples.
 1. Configure the Enterprise Actions Policies to allow the following actions:
     - actions-approved/* (this is the org where your actions will be hosted)
     - peter-murray/issue-body-parser-action@v1 (required by these workflows)
+
+## Installing these workflows into another repo
+You may already have requests for marketplace actions occuring in another repo, and want to simply use these workflows in that repo.
+1. Make sure the [prerequisutes](#prerequisites) above are met.
+1. Follow the [setup](#setup) instructions above on the repo you intent to use.
+1. Move the contents of the this repos .github directory into the .github directory of the repo you intent to use. Be careful not to clobber any existing files in the .github repo!
