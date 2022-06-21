@@ -13,7 +13,7 @@ assignees: 'actions-approvers'
 ```json request
 {
     "owner": "actions",
-    "repo": "toolkit"
+    "repo": "toolkit",
     "version": "latest"
 }
 ```
