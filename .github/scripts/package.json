@@ -1,5 +1,5 @@
 {
-    "name": "request-marketpalce-action",
+    "name": "requestlace-action",
     "version": "1.0.0",
     "private": true,
     "description": "GitHub Actions workflow to request a marketplace action",
@@ -11,7 +11,7 @@
         "@octokit/rest": "^18.12.0",
         "nodegit": "^0.27.0"
     },
-    "repository": "robandpdx:request-marketpalce-action",
+    "repository": "robandpdx:request-marketplace-action",
     "keywords": [],
     "author": "Rob Anderson (https://github.com/robandpdx)",
     "license": "MIT",
