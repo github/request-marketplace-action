@@ -36,8 +36,7 @@ See [examples.md](examples.md) for more examples.
 `ADMIN_OPS_ORG`: admin-ops  
 `ACTIONS_APPROVED_ORG`: actions-approved  
 `ACTIONS_APPROVERS_TEAM`: actions-approvers  
-1. Configure the Enterprise Actions Policies to allow the following actions:
-    - actions-approved/* (this is the org where your actions will be hosted)
+1. Configure the Enterprise Actions Policies to allow select actions. Allow specified actions as follows:
     - peter-murray/issue-body-parser-action@v1 (required by these workflows)
 
 ## Installing these workflows into another repo
