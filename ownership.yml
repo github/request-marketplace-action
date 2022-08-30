@@ -1,0 +1,21 @@
+version: 1
+ownership:
+- name: request-marketplace-action
+  description: actions workflows to help manage the process of requesting marketplace actions and approving or denying such requests
+  kind: code
+  maintainer: robandpdx
+  team: github/ps-amer
+  exec_sponsor: naval-gupta
+  repo: https://github.com/github/request-marketplace-action
+  sev1:
+    issue: https://github.com/github/request-marketplace-action/issues 
+    tta: '1 business day'
+  sev2:
+    issue: https://github.com/github/request-marketplace-action/issues 
+    tta: '5 business days'
+  sev3:
+    issue: https://github.com/github/request-marketplace-action/issues 
+    slack: sre-ops
+    tta: '7 business days'
+  qos: experimental
+  tier: 3
