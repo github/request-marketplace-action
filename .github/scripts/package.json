@@ -1,5 +1,5 @@
 {
-    "name": "requestlace-action",
+    "name": "request-marketplace-action",
     "version": "1.0.0",
     "private": true,
     "description": "GitHub Actions workflow to request a marketplace action",
