@@ -8,7 +8,7 @@ ownership:
   exec_sponsor: naval-gupta
   repo: https://github.com/github/request-marketplace-action
   sev1:
-    pagerduty: https://github.com/github/request-marketplace-action/issues 
+    issue: https://github.com/github/request-marketplace-action/issues 
     tta: '1 business day'
   sev2:
     issue: https://github.com/github/request-marketplace-action/issues 
@@ -18,3 +18,4 @@ ownership:
     slack: sre-ops
     tta: '7 business days'
   qos: experimental
+  tier: 3
