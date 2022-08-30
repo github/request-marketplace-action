@@ -11,7 +11,7 @@ module.exports = async ({github, context, payload, options}) => {
         owner: `${options.actionsApprovedOrg}`,
         repo: `${payload.repo}_${options.version}`
     }
-    if (context.payload.comment.body.includes('approve') && await isAuthorized(context, options, octokit)) {
+    if (context.payload.comment.body.toLowerCase().includes('approve') && await isAuthorized(context, options, octokit)) {
         // Check GitHub.com or GHEC version
         let internalRepoToggle = true;
         if (options.baseUrl != 'https://api.github.com') {
@@ -33,7 +33,7 @@ module.exports = async ({github, context, payload, options}) => {
                 access_level: 'enterprise'
             });
         }
-    } else if (context.payload.comment.body.includes('deny') && await isAuthorized(context, options, octokit)) {
+    } else if (context.payload.comment.body.toLowerCase().includes('deny') && await isAuthorized(context, options, octokit)) {
         // deny the request
         console.log(`Denying the request, archiving the repo`);
         repoUpdate.visibility = 'private';
