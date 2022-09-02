@@ -26,8 +26,6 @@ jobs:
       run: |
         cd .github/scripts
         npm install
-    - name: Dump steps context
-      run: echo '${{ toJSON(steps) }}'
     - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
       id: get_version
       run: |
@@ -49,8 +47,6 @@ jobs:
     - name: Check out requested action repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}
       run: |
         git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
-    - name: Show the directory
-      run: ls -l requested-action
     - name: Push requested action to private repo in $ACTIONS_APPROVED_ORG org on GitHub Enterprise Server
       run: |
         cd requested-action
