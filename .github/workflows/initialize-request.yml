@@ -28,11 +28,15 @@ jobs:
         npm install
     - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
       id: get_version
+      env:
+        OWNER: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}
+        REPO: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
+        REQUEST_VERSION: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }}
       run: |
-        if [ '${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }}' == 'latest' ]; then
-          export VERSION=`curl https://api.github.com/repos/${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}/releases/latest | jq -r .name`
+        if [ $REQUEST_VERSION == 'latest' ]; then
+          export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
         else
-          export VERSION=${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }}
+          export VERSION=$REQUEST_VERSION
         fi
         echo "VERSION: $VERSION"
         echo "::set-output name=version::$VERSION"
@@ -45,9 +49,14 @@ jobs:
           const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
           await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
     - name: Check out requested action repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}
+      env:
+        OWNER: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}
+        REPO: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
       run: |
-        git clone https://github.com/'${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}' requested-action
+        git clone https://github.com/$OWNER/$REPO requested-action
     - name: Push requested action to private repo in $ACTIONS_APPROVED_ORG org on GitHub Enterprise Server
+      env:
+        REPO: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
       run: |
         cd requested-action
         git config user.email '${{ secrets.GITHUB_EMAIL }}'
@@ -59,7 +68,7 @@ jobs:
         git switch -c ${{ steps.get_version.outputs.version }}-branch
         git branch -m main
         export GHHOST=${{ github.server_url }}
-        git remote add origin2 https://${{ secrets.TOKEN }}@${GHHOST#https://}/${{ secrets.ACTIONS_APPROVED_ORG }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}.git
+        git remote add origin2 https://${{ secrets.TOKEN }}@${GHHOST#https://}/${{ secrets.ACTIONS_APPROVED_ORG }}/"$REPO"_${{ steps.get_version.outputs.version }}.git
         git push -u origin2 main
         git push -u origin2 ${{ steps.get_version.outputs.version }}
         
