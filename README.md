@@ -31,7 +31,7 @@ See [examples.md](examples.md) for more examples.
 1. You have an org created where you intend to host your approved actions. Let's call it `actions-approved` for now.
 1. You have an org created where you intend to host the repos that will run these workflow. Let's call it `admin-ops` for now.
 1. You have a team created within the `admin-ops` org. Members of this team will be able to approve or deny requests for marketplace actions. Let's call it `actions-approvers` for now.
-1. You need runners available to the repo or org where you intend to run these workflows.
+1. You need runners available to the repo or org where you intend to run these workflows. Currently the workflow are configured to use `self-hosted` runners.
 
 ## Setup
 1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has `admin:org`, `repo`, and `workflow` scope on your GHEC server.
