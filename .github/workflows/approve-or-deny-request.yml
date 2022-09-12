@@ -5,16 +5,24 @@ on:
     types: [created]
 
 jobs:
+  parse-issue:
+    runs-on: self-hosted
+    outputs:
+      payload: ${{ steps.issue_body_parser_request.outputs.payload }}
+    steps:
+      - name: Get JSON Data out of Issue Request
+        uses: peter-murray/issue-body-parser-action@v2
+        id: issue_body_parser_request
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_id: ${{ github.event.issue.number }}
+          payload_marker: request
+          fail_on_missing: false
   approve-or-deny-request:
     runs-on: self-hosted
+    needs: parse-issue
+    if: needs.parse-issue.outputs.payload != 'NOT_FOUND'
     steps:
-    - name: Get JSON Data out of Issue Request
-      uses: peter-murray/issue-body-parser-action@v1
-      id: issue_body_parser_request
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_id: ${{ github.event.issue.number }}
-        payload_marker: request
     - name: Check out scripts
       uses: actions/checkout@v2
     - name: Setup Node
@@ -26,12 +34,12 @@ jobs:
       run: |
         cd .github/scripts
         npm install
-    - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
+    - name: Lookup the latest release of ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}
       id: get_version
       env:
-        OWNER: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}
-        REPO: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
-        REQUEST_VERSION: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }}
+        OWNER: ${{ fromJson(needs.parse-issue.outputs.payload).owner }}
+        REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
+        REQUEST_VERSION: ${{ fromJson(needs.parse-issue.outputs.payload).version }}
       run: |
         if [ $REQUEST_VERSION == 'latest' ]; then
           export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
@@ -46,5 +54,5 @@ jobs:
         debug: true
         script: |
           const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ secrets.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ secrets.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', version: '${{ steps.get_version.outputs.version }}' };
-          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
+          const payload = ${{ needs.parse-issue.outputs.payload }}
           await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});
