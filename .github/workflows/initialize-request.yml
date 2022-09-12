@@ -5,16 +5,24 @@ on:
     types: [opened]
 
 jobs:
+  parse-issue:
+    runs-on: self-hosted
+    outputs:
+      payload: ${{ steps.issue_body_parser_request.outputs.payload }}
+    steps:
+      - name: Get JSON Data out of Issue Request
+        uses: peter-murray/issue-body-parser-action@v2
+        id: issue_body_parser_request
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_id: ${{ github.event.issue.number }}
+          payload_marker: request
+          fail_on_missing: false
   initialize-request:
     runs-on: self-hosted
+    needs: parse-issue
+    if: needs.parse-issue.outputs.payload != 'NOT_FOUND'
     steps:
-    - name: Get JSON Data out of Issue Request
-      uses: peter-murray/issue-body-parser-action@v1
-      id: issue_body_parser_request
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        issue_id: ${{ github.event.issue.number }}
-        payload_marker: request
     - name: Check out scripts
       uses: actions/checkout@v2
     - name: Setup Node
@@ -26,12 +34,12 @@ jobs:
       run: |
         cd .github/scripts
         npm install
-    - name: Lookup the latest release of ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
+    - name: Lookup the latest release of ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}
       id: get_version
       env:
-        OWNER: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}
-        REPO: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
-        REQUEST_VERSION: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).version }}
+        OWNER: ${{ fromJson(needs.parse-issue.outputs.payload).owner }}
+        REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
+        REQUEST_VERSION: ${{ fromJson(needs.parse-issue.outputs.payload).version }}
       run: |
         if [ $REQUEST_VERSION == 'latest' ]; then
           export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
@@ -40,23 +48,23 @@ jobs:
         fi
         echo "VERSION: $VERSION"
         echo "::set-output name=version::$VERSION"
-    - name: Create the repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.get_version.outputs.version }} on GitHub Enterprise Server
+    - name: Create the repo ${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }} on GitHub Enterprise Server
       uses: actions/github-script@main
       with:
         debug: true
         script: |
           const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', version: '${{ steps.get_version.outputs.version }}' };
-          const payload = ${{ steps.issue_body_parser_request.outputs.payload }}
+          const payload = ${{ needs.parse-issue.outputs.payload }}
           await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
-    - name: Check out requested action repo ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}/${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}
+    - name: Check out requested action repo ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}
       env:
-        OWNER: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).owner }}
-        REPO: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
+        OWNER: ${{ fromJson(needs.parse-issue.outputs.payload).owner }}
+        REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
       run: |
         git clone https://github.com/$OWNER/$REPO requested-action
     - name: Push requested action to private repo in $ACTIONS_APPROVED_ORG org on GitHub Enterprise Server
       env:
-        REPO: ${{ fromJson(steps.issue_body_parser_request.outputs.payload).repo }}
+        REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
       run: |
         cd requested-action
         git config user.email '${{ secrets.GITHUB_EMAIL }}'
