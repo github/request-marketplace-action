@@ -17,7 +17,7 @@
     "license": "MIT",
     "devDependencies": {
         "mocha": "^9.2.1",
-        "mock-fs": "^5.1.2",
+        "mock-fs": "^5.1.4",
         "nock": "^13.0.7",
         "nyc": "^15.1.0",
         "uvu": "^0.5.1"
