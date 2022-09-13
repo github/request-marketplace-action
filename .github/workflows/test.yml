@@ -12,8 +12,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          cache: npm
           node-version: 14
+          cache: npm
+          cache-dependency-path: ${{ env.working-directory }}/package-lock.json
       - run: npm ci
         working-directory: ${{ env.working-directory }}
       - run: npm test
