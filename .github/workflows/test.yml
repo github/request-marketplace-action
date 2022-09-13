@@ -1,0 +1,21 @@
+name: Main Tests
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./.github/scripts
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: npm
+          cache-dependency-path: ${{ env.working-directory }}/package-lock.json
+      - run: npm ci
+        working-directory: ${{ env.working-directory }}
+      - run: npm test
+        working-directory: ${{ env.working-directory }}
