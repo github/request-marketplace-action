@@ -29,3 +29,4 @@ jobs:
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SKIP_COVERAGE_FOLDER: true
+        WORKING_DIRECTORY: ${{ env.working-directory }}
