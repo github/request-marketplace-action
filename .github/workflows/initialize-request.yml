@@ -23,6 +23,25 @@ jobs:
     needs: parse-issue
     if: needs.parse-issue.outputs.payload != 'NOT_FOUND'
     steps:
+    - name: Lookup the latest release of ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}
+      id: get_version
+      env:
+        OWNER: ${{ fromJson(needs.parse-issue.outputs.payload).owner }}
+        REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
+        REQUEST_VERSION: ${{ fromJson(needs.parse-issue.outputs.payload).version }}
+      run: |
+        if [ $REQUEST_VERSION == 'latest' ]; then
+          export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
+        else
+          if curl -f https://api.github.com/repos/$OWNER/$REPO/releases/tags/$REQUEST_VERSION; then
+            export VERSION=$REQUEST_VERSION
+          else
+            echo "VERSION: $REQUEST_VERSION does not exists"
+            exit 1
+          fi
+        fi
+        echo "VERSION: $VERSION"
+        echo "::set-output name=version::$VERSION"
     - name: Check out scripts
       uses: actions/checkout@v2
     - name: Setup Node
@@ -34,20 +53,6 @@ jobs:
       run: |
         cd .github/scripts
         npm install
-    - name: Lookup the latest release of ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}
-      id: get_version
-      env:
-        OWNER: ${{ fromJson(needs.parse-issue.outputs.payload).owner }}
-        REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
-        REQUEST_VERSION: ${{ fromJson(needs.parse-issue.outputs.payload).version }}
-      run: |
-        if [ $REQUEST_VERSION == 'latest' ]; then
-          export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
-        else
-          export VERSION=$REQUEST_VERSION
-        fi
-        echo "VERSION: $VERSION"
-        echo "::set-output name=version::$VERSION"
     - name: Create the repo ${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }} on GitHub Enterprise Server
       uses: actions/github-script@main
       with:
