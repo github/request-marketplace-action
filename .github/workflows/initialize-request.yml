@@ -34,13 +34,7 @@ jobs:
           echo "Finding latest release of $OWNER/$REPO..."
           export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
         else
-          echo "Validating the requested version $REQUEST_VERSION exists..."
-          if curl -f https://api.github.com/repos/$OWNER/$REPO/releases/tags/$REQUEST_VERSION; then
-            export VERSION=$REQUEST_VERSION
-          else
-            echo "VERSION: $REQUEST_VERSION does not exists"
-            exit 1
-          fi
+          export VERSION=$REQUEST_VERSION
         fi
         echo "VERSION: $VERSION"
         echo "version=$VERSION" >> $GITHUB_OUTPUT

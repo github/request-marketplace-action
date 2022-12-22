@@ -47,3 +47,6 @@ You may already have requests for marketplace actions occuring in another repo, 
 1. Make sure the [prerequisutes](#prerequisites) above are met.
 1. Follow the [setup](#setup) instructions above on the repo you intent to use.
 1. Move the contents of the this repos .github directory into the .github directory of the repo you intent to use. Be careful not to clobber any existing files in the .github repo!
+
+## Troubleshooting
+When specifying the details of the actions repo you are requesting, if the release name and the tag name of the release in that repo do not match, you will need to use the tag name for the version. When specifying the version as `latest` the assumption is that the release name and the tag name of the release match. If this is not the case, you will need to speficy the tag name as the vesion rather than using `latest`.
