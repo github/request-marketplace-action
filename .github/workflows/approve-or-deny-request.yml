@@ -31,8 +31,10 @@ jobs:
         REQUEST_VERSION: ${{ fromJson(needs.parse-issue.outputs.payload).version }}
       run: |
         if [ $REQUEST_VERSION == 'latest' ]; then
+          echo "Finding latest release of $OWNER/$REPO..."
           export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
         else
+          echo "Validating the requested version $REQUEST_VERSION exists..."
           if curl -f https://api.github.com/repos/$OWNER/$REPO/releases/tags/$REQUEST_VERSION; then
             export VERSION=$REQUEST_VERSION
           else
@@ -43,9 +45,9 @@ jobs:
         echo "VERSION: $VERSION"
         echo "::set-output name=version::$VERSION"
     - name: Check out scripts
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup Node
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: '14'
         check-latest: true
@@ -55,9 +57,11 @@ jobs:
         npm install
     - name: Approve or deny request
       uses: actions/github-script@main
+      env:
+        VERSION: ${{ steps.get_version.outputs.version }}
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ secrets.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ secrets.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', version: '${{ steps.get_version.outputs.version }}' };
+          const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ secrets.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ secrets.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', version: process.env.VERSION };
           const payload = ${{ needs.parse-issue.outputs.payload }}
           await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});
