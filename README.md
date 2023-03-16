@@ -34,8 +34,8 @@ See [examples.md](examples.md) for more examples.
 1. You need runners available to the repo or org where you intend to run these workflows. Currently the workflow are configured to use `self-hosted` runners.
 
 ## Setup
-1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has `admin:org`, `repo`, and `workflow` scope on your GHEC server.
-1. Configure this repo with the following repo secrets and note their values below. These are not really secrets, but rather config values that should be known.  
+1. Configure this repo with an actions secret named `TOKEN` with the value of a PAT that has `admin:org`, `repo`, and `workflow` scope on your GHEC server.
+1. Configure this repo with the following actions repository variables, and note their values below so they are known to all who use this repo.  
 `ADMIN_OPS_ORG`: admin-ops  
 `ACTIONS_APPROVED_ORG`: actions-approved  
 `ACTIONS_APPROVERS_TEAM`: actions-approvers  
