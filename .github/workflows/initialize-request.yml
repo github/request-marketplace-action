@@ -33,6 +33,10 @@ jobs:
         if [ $REQUEST_VERSION == 'latest' ]; then
           echo "Finding latest release of $OWNER/$REPO..."
           export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
+          if [ "$VERSION" == "null" ]; then
+            echo "No latest version found for $OWNER/$REPO"
+            exit 1
+          fi
         else
           export VERSION=$REQUEST_VERSION
         fi
@@ -56,7 +60,7 @@ jobs:
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', version: process.env.VERSION };
+          const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ vars.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', version: process.env.VERSION };
           const payload = ${{ needs.parse-issue.outputs.payload }}
           await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
     - name: Check out requested action repo ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}
@@ -80,7 +84,7 @@ jobs:
         git switch -c "$VERSION"-branch
         git branch -m main
         export GHHOST=${{ github.server_url }}
-        git remote add origin2 https://${{ secrets.TOKEN }}@${GHHOST#https://}/${{ secrets.ACTIONS_APPROVED_ORG }}/"$REPO"_"$VERSION".git
+        git remote add origin2 https://${{ secrets.TOKEN }}@${GHHOST#https://}/${{ vars.ACTIONS_APPROVED_ORG }}/"$REPO"_"$VERSION".git
         git push -u origin2 main
         git push -u origin2 "$VERSION"
         
