@@ -76,7 +76,7 @@ test("Fail the workflow because the repo already exists", async function () {
     } catch (err) {
         assert.equal(err.message, "Repo actions-approved/setup-packer_v1.2.3 already exists");
     }
-        assert.equal(mock.pendingMocks(), []);
+    assert.equal(mock.pendingMocks(), []);
 });
 
 // Create the repo because it doesn't exist
@@ -98,6 +98,9 @@ test("Create the repo because it doesn't exist", async function () {
         return true;
     }
     ).reply(201);
+
+    mock.put(`/repos/actions-approved/setup-packer_v1.2.3/actions/permissions`)
+        .reply(204);
 
     await require('./initialize-request.js')({github, context, payload, options});
     assert.equal(mock.pendingMocks(), []);
