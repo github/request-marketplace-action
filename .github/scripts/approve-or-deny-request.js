@@ -64,7 +64,7 @@ async function isAuthorized(context, options, octokit) {
     } catch (error) {
         console.log(`error: ${error}`);
         console.log("Error checking membership. Check the ADMIN_OPS_ORG and ACTIONS_APPROVER_TEAM variables.")
-        throw error;
+        throw new Error("Error checking membership");
     }
 }
 

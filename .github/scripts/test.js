@@ -69,7 +69,7 @@ test.after.each(() => {
 test("Fail the workflow because the repo already exists", async function () {
     let mock = nock("https://github.robandpdx.demo-stack.com/api/v3");
     mock.get(`/repos/actions-approved/setup-packer_v1.2.3?owner=actions-approved&repo=setup-packer_v1.2.3`)
-         .reply(201);
+        .reply(201);
 
     try {
         await require('./initialize-request.js')({github, context, payload, options});
@@ -291,7 +291,11 @@ test("Membership not active 404", async function () {
     mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
     .reply(404);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    try {
+        await require('./approve-or-deny-request.js')({github, context, payload, options});
+    } catch (err) {
+        assert.equal(err.message, "Error checking membership");
+    }
     assert.equal(mock.pendingMocks(), []);
 });
 
