@@ -42,7 +42,7 @@
 	// },
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "cd .github/scripts && npm install && npm install -g nyc mocha",
+	"postCreateCommand": "cd .github/scripts && npm install && npm install -g nyc mocha uvu",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "node"
