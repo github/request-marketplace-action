@@ -32,6 +32,14 @@ module.exports = async ({github, context, payload, options}) => {
             has_projects: false,
             has_wiki: false
         });
+        console.log(`Repo ${payload.repo}_${options.version} created successfully`);
+        // disable actions on the repo
+        console.log('Disabling actions on new repo')
+        await octokit.request(`PUT /repos/${options.actionsApprovedOrg}/${payload.repo}_${options.version}/actions/permissions`, {
+            owner: options.actionsApprovedOrg,
+            repo: `${payload.repo}_${options.version}`,
+            enabled: false
+        });
     });
 
     if (exitError) {

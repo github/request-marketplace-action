@@ -31,21 +31,21 @@ jobs:
         REQUEST_VERSION: ${{ fromJson(needs.parse-issue.outputs.payload).version }}
       run: |
         if [ $REQUEST_VERSION == 'latest' ]; then
+          echo "Finding latest release of $OWNER/$REPO..."
           export VERSION=`curl https://api.github.com/repos/$OWNER/$REPO/releases/latest | jq -r .name`
-        else
-          if curl -f https://api.github.com/repos/$OWNER/$REPO/releases/tags/$REQUEST_VERSION; then
-            export VERSION=$REQUEST_VERSION
-          else
-            echo "VERSION: $REQUEST_VERSION does not exists"
+          if [ "$VERSION" == "null" ]; then
+            echo "No latest version found for $OWNER/$REPO"
             exit 1
           fi
+        else
+          export VERSION=$REQUEST_VERSION
         fi
         echo "VERSION: $VERSION"
-        echo "::set-output name=version::$VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
     - name: Check out scripts
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup Node
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: '14'
         check-latest: true
@@ -55,10 +55,12 @@ jobs:
         npm install
     - name: Create the repo ${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }} on GitHub Enterprise Server
       uses: actions/github-script@main
+      env:
+        VERSION: ${{ steps.get_version.outputs.version }}
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ secrets.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', version: '${{ steps.get_version.outputs.version }}' };
+          const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ vars.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', version: process.env.VERSION };
           const payload = ${{ needs.parse-issue.outputs.payload }}
           await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
     - name: Check out requested action repo ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}
@@ -70,6 +72,7 @@ jobs:
     - name: Push requested action to private repo in $ACTIONS_APPROVED_ORG org on GitHub Enterprise Server
       env:
         REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
+        VERSION: ${{ steps.get_version.outputs.version }}
       run: |
         cd requested-action
         git config user.email '${{ secrets.GITHUB_EMAIL }}'
@@ -77,11 +80,11 @@ jobs:
         if git checkout main; then
           git branch -m main-old
         fi
-        git checkout ${{ steps.get_version.outputs.version }}
-        git switch -c ${{ steps.get_version.outputs.version }}-branch
+        git checkout "$VERSION"
+        git switch -c "$VERSION"-branch
         git branch -m main
         export GHHOST=${{ github.server_url }}
-        git remote add origin2 https://${{ secrets.TOKEN }}@${GHHOST#https://}/${{ secrets.ACTIONS_APPROVED_ORG }}/"$REPO"_${{ steps.get_version.outputs.version }}.git
+        git remote add origin2 https://${{ secrets.TOKEN }}@${GHHOST#https://}/${{ vars.ACTIONS_APPROVED_ORG }}/"$REPO"_"$VERSION".git
         git push -u origin2 main
-        git push -u origin2 ${{ steps.get_version.outputs.version }}
+        git push -u origin2 "$VERSION"
         

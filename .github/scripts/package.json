@@ -5,10 +5,10 @@
     "description": "GitHub Actions workflow to request a marketplace action",
     "main": "initialize-request.js",
     "scripts": {
-        "test": "nyc --reporter=lcov --reporter=cobertura --reporter=text --reporter=text-summary mocha "
+        "test": "nyc --reporter=lcov --reporter=cobertura --reporter=text --reporter=text-summary uvu"
     },
     "dependencies": {
-        "@octokit/rest": "^19.0.5",
+        "@octokit/rest": "^19.0.7",
         "nodegit": "^0.27.0"
     },
     "repository": "robandpdx:request-marketplace-action",
@@ -16,9 +16,9 @@
     "author": "Rob Anderson (https://github.com/robandpdx)",
     "license": "MIT",
     "devDependencies": {
-        "mocha": "^10.1.0",
+        "mocha": "^10.2.0",
         "mock-fs": "^5.2.0",
-        "nock": "^13.2.9",
+        "nock": "^13.3.0",
         "nyc": "^15.1.0",
         "uvu": "^0.5.6"
     },

@@ -46,6 +46,7 @@ module.exports = async ({github, context, payload, options}) => {
 }
 
 async function isAuthorized(context, options, octokit) {
+    console.log(`Checking if ${context.payload.comment.user.login} is a member of ${options.adminOpsOrg}/${options.actionsApproverTeam} team`)
     try {
         let membership = await octokit.request(`GET /orgs/${options.adminOpsOrg}/teams/${options.actionsApproverTeam}/memberships/${context.payload.comment.user.login}`, {
             org: options.adminOpsOrg,
@@ -54,13 +55,16 @@ async function isAuthorized(context, options, octokit) {
         })
 
         if (membership.data.state == 'active') {
+            console.log( "Membership active")
             return true;
         } else {
+            console.log( "Membership not active")
             return false;
         }
     } catch (error) {
         console.log(`error: ${error}`);
-        return false;
+        console.log("Error checking membership. Check the ADMIN_OPS_ORG and ACTIONS_APPROVER_TEAM variables.")
+        throw new Error("Error checking membership");
     }
 }
 

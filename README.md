@@ -6,7 +6,7 @@ In [GitHub Enterprise Server](https://docs.github.com/en/enterprise-server) you 
 This project provides two actions workflows to help manage the process of requesting marketplace actions and approving or denying such requests: Initialize Marketplace Action Request and Approve or Deny Marketplace Action Request
 
 ## Workflows
-**Initialize Marketplace Action Request** is triggered when a user opens an issue requesting a spicific marketplace action. The marketplace actions is "staged" as a private repo in your org where you intend to host the approved actions. Within this private repo, admins can review the marketplace action code and determine if it is appropriate for use within your enterprise. 
+**Initialize Marketplace Action Request** is triggered when a user opens an issue requesting a spicific marketplace action. The marketplace actions is "staged" as a private repo in your org where you intend to host the approved actions. Within this private repo, admins can review the marketplace action code and determine if it is appropriate for use within your enterprise. Actions are disabled on the newly created repo to prevent possible privilege escalation through self-hosted runners.  
 
 **Approve or Deny Marketplace Action Request** is triggered when a user comments on an issue. If the user commenting is a member of the approvers team, and the comment includes the word "approve", then the visibility of the repo create by the previous workflow is changed from "private" to "internal" (GHEC EMU and GHES >= 3.5, for GHES < 3.5 repos become "public" on approval) and the issue is closed. If the user commenting is a member of the approvers team, and the comment includes the word "deny", then the repo create by the previous workflow is put in "archive" mode and remains "private".
 
@@ -34,8 +34,8 @@ See [examples.md](examples.md) for more examples.
 1. You need runners available to the repo or org where you intend to run these workflows. Currently the workflow are configured to use `self-hosted` runners.
 
 ## Setup
-1. Configure this repo with a sercret named `TOKEN` with the value of a PAT that has `admin:org`, `repo`, and `workflow` scope on your GHEC server.
-1. Configure this repo with the following repo secrets and note their values below. These are not really secrets, but rather config values that should be known.  
+1. Configure this repo with an actions secret named `TOKEN` with the value of a PAT that has `admin:org`, `repo`, and `workflow` scope on your GHEC server.
+1. Configure this repo with the following actions repository variables, and note their values below so they are known to all who use this repo.  
 `ADMIN_OPS_ORG`: admin-ops  
 `ACTIONS_APPROVED_ORG`: actions-approved  
 `ACTIONS_APPROVERS_TEAM`: actions-approvers  
@@ -47,3 +47,6 @@ You may already have requests for marketplace actions occuring in another repo, 
 1. Make sure the [prerequisutes](#prerequisites) above are met.
 1. Follow the [setup](#setup) instructions above on the repo you intent to use.
 1. Move the contents of the this repos .github directory into the .github directory of the repo you intent to use. Be careful not to clobber any existing files in the .github repo!
+
+## Troubleshooting
+When specifying the details of the actions repo you are requesting, if the release name and the tag name of the release in that repo do not match, you will need to use the tag name for the version. When specifying the version as `latest` the assumption is that the release name and the tag name of the release match. If this is not the case, you will need to speficy the tag name as the vesion rather than using `latest`.
