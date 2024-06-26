@@ -8,8 +8,7 @@
         "test": "nyc --reporter=lcov --reporter=cobertura --reporter=text --reporter=text-summary uvu"
     },
     "dependencies": {
-        "@octokit/rest": "^19.0.13",
-        "nodegit": "^0.27.0"
+        "@octokit/rest": "^19.0.13"
     },
     "repository": "robandpdx:request-marketplace-action",
     "keywords": [],
