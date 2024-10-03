@@ -57,12 +57,12 @@ jobs:
       uses: actions/github-script@main
       env:
         VERSION: ${{ steps.get_version.outputs.version }}
+        PAYLOAD: ${{ needs.parse-issue.outputs.payload }}
       with:
         debug: true
         script: |
           const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ vars.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', version: process.env.VERSION };
-          const payload = ${{ needs.parse-issue.outputs.payload }}
-          await require('./.github/scripts/initialize-request.js')({github, context, payload, options});
+          await require('./.github/scripts/initialize-request.js')({github, context, $PAYLOAD, options});
     - name: Check out requested action repo ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}
       env:
         OWNER: ${{ fromJson(needs.parse-issue.outputs.payload).owner }}
