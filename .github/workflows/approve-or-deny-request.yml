@@ -43,7 +43,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: '14'
+        node-version: '20'
         check-latest: true
     - name: Install dependencies
       run: |
@@ -53,9 +53,9 @@ jobs:
       uses: actions/github-script@main
       env:
         VERSION: ${{ steps.get_version.outputs.version }}
+        PAYLOAD: ${{ needs.parse-issue.outputs.payload }}
       with:
         debug: true
         script: |
           const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ vars.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ vars.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ vars.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', version: process.env.VERSION };
-          const payload = ${{ needs.parse-issue.outputs.payload }}
-          await require('./.github/scripts/approve-or-deny-request.js')({github, context, payload, options});
+          await require('./.github/scripts/approve-or-deny-request.js')({github, context, $PAYLOAD, options});

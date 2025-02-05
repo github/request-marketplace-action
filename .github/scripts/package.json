@@ -16,10 +16,10 @@
     "author": "Rob Anderson (https://github.com/robandpdx)",
     "license": "MIT",
     "devDependencies": {
-        "mocha": "^10.2.0",
-        "mock-fs": "^5.2.0",
-        "nock": "^13.3.2",
-        "nyc": "^15.1.0",
+        "mocha": "^11.1.0",
+        "mock-fs": "^5.4.1",
+        "nock": "^14.0.0",
+        "nyc": "^17.1.0",
         "uvu": "^0.5.6"
     },
     "release": {
