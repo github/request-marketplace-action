@@ -57,5 +57,6 @@ jobs:
       with:
         debug: true
         script: |
+          import { main as complete } from './approve-or-deny-request.mjs';
           const options = { token: '${{ secrets.TOKEN }}', adminOpsOrg: '${{ vars.ADMIN_OPS_ORG }}', actionsApprovedOrg: '${{ vars.ACTIONS_APPROVED_ORG }}', actionsApproverTeam: '${{ vars.ACTIONS_APPROVERS_TEAM }}', baseUrl: '${{ github.api_url }}', version: process.env.VERSION };
-          await require('./.github/scripts/approve-or-deny-request.js')({github, context, $PAYLOAD, options});
+          await complete(github, context, $PAYLOAD, options);

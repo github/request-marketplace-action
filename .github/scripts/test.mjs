@@ -1,11 +1,14 @@
-const { test } = require('uvu');
-const assert = require('uvu/assert');
-const fs = require("fs");
+import { test } from 'uvu';
+import * as assert from 'uvu/assert';
+import fs from 'fs';
 
-const nock = require("nock");
+import { main as initialize } from './initialize-request.mjs';
+import { main as complete } from './approve-or-deny-request.mjs';
+
+import nock from 'nock';
 nock.disableNetConnect();
 
-const { Octokit } = require("@octokit/rest");
+import { Octokit } from "@octokit/rest";
 
 const github = new Octokit({
     auth: "secret123",
@@ -72,7 +75,7 @@ test("Fail the workflow because the repo already exists", async function () {
         .reply(201);
 
     try {
-        await require('./initialize-request.js')({github, context, payload, options});
+        await initialize(github, context, payload, options);
     } catch (err) {
         assert.equal(err.message, "Repo actions-approved/setup-packer_v1.2.3 already exists");
     }
@@ -102,7 +105,7 @@ test("Create the repo because it doesn't exist", async function () {
     mock.put(`/repos/actions-approved/setup-packer_v1.2.3/actions/permissions`)
         .reply(204);
 
-    await require('./initialize-request.js')({github, context, payload, options});
+    await initialize(github, context, payload, options);
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -135,7 +138,7 @@ test("Change the repo visibility to internal on approval GHES 3.5", async functi
         return true;
     }).reply(200);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await complete(github, context, payload, options);
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -169,7 +172,7 @@ test("Change the repo visibility to internal on approval GHEC", async function (
         return true;
     }).reply(200);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await complete(github, context, payload, options);
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -195,7 +198,7 @@ test("Change the repo visibility to public on approval GHES 3.4", async function
         return true;
     }).reply(200);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await complete(github, context, payload, options);
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -230,7 +233,7 @@ test("Change the repo visibility to internal on approval GHEC, uppercase comment
         return true;
     }).reply(200);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await complete(github, context, payload, options);
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -257,7 +260,7 @@ test("Change the repo to archived on denial", async function () {
         return true;
     }).reply(200);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await complete(github, context, payload, options);
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -284,7 +287,7 @@ test("Change the repo to archived on denial, uppercase comment", async function 
         return true;
     }).reply(200);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await complete(github, context, payload, options);
     assert.equal(mock.pendingMocks(), []);
 });
 
@@ -295,7 +298,7 @@ test("Membership not active 404", async function () {
     .reply(404);
 
     try {
-        await require('./approve-or-deny-request.js')({github, context, payload, options});
+        await complete(github, context, payload, options);
     } catch (err) {
         assert.equal(err.message, "Error checking membership");
     }
@@ -310,7 +313,7 @@ test("Membership not active", async function () {
     mock.get(`/orgs/admin-ops/teams/actions-approvers/memberships/octocat?org=admin-ops&team_slug=actions-approvers&username=octocat`)
     .reply(200, membershipResponse);
 
-    await require('./approve-or-deny-request.js')({github, context, payload, options});
+    await complete(github, context, payload, options);
     assert.equal(mock.pendingMocks(), []);
 });
 

@@ -1,6 +1,7 @@
-const { Octokit } = require("@octokit/rest");
+//const { Octokit } = require("@octokit/rest");
+import { Octokit } from "@octokit/rest";
 
-module.exports = async ({github, context, payload, options}) => {
+async function main(github, context, payload, options) {
     // Instantiate octokit with ghtoken and baseUrl for GHES
     let octokit = new Octokit({
         auth: options.token,
@@ -46,3 +47,5 @@ module.exports = async ({github, context, payload, options}) => {
         throw new Error(`Repo ${options.actionsApprovedOrg}/${payload.repo}_${options.version} already exists`);
     }
 }
+
+export { main }

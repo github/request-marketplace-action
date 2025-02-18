@@ -1,6 +1,7 @@
-const { Octokit } = require("@octokit/rest");
+//const { Octokit } = require("@octokit/rest");
+import { Octokit } from "@octokit/rest";
 
-module.exports = async ({github, context, payload, options}) => {
+async function main(github, context, payload, options) {
 
     let octokit = new Octokit({
         auth: options.token,
@@ -78,3 +79,5 @@ async function updateRepoCloseIssue(context, octokit, repoUpdate) {
         state: 'closed'
     });
 }
+
+export { main }
