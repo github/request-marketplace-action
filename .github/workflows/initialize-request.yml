@@ -54,15 +54,24 @@ jobs:
         cd .github/scripts
         npm install
     - name: Create the repo ${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }} on GitHub Enterprise Server
-      uses: actions/github-script@main
+      uses: actions/github-script@v7
       env:
         VERSION: ${{ steps.get_version.outputs.version }}
-        PAYLOAD: ${{ needs.parse-issue.outputs.payload }}
+        OWNER: ${{ fromJson(needs.parse-issue.outputs.payload).owner }}
+        REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
       with:
         debug: true
         script: |
-          const options = { token: '${{ secrets.TOKEN }}', actionsApprovedOrg: '${{ vars.ACTIONS_APPROVED_ORG }}', baseUrl: '${{ github.api_url }}', version: process.env.VERSION };
-          await require('./.github/scripts/initialize-request.js')({github, context, $PAYLOAD, options});
+          const { default: initialize } = await import('${{ github.workspace }}/.github/scripts/initialize-request.mjs');
+          const options = { 
+            token: '${{ secrets.TOKEN }}',
+            actionsApprovedOrg: '${{ vars.ACTIONS_APPROVED_ORG }}',
+            baseUrl: '${{ github.api_url }}',
+            version: process.env.VERSION,
+            owner: process.env.OWNER,
+            repo: process.env.REPO
+          };
+          await initialize(github, context, options);
     - name: Check out requested action repo ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}_${{ steps.get_version.outputs.version }}
       env:
         OWNER: ${{ fromJson(needs.parse-issue.outputs.payload).owner }}

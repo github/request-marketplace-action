@@ -1,6 +1,7 @@
-const { Octokit } = require("@octokit/rest");
+//const { Octokit } = require("@octokit/rest");
+import { Octokit } from "@octokit/rest";
 
-module.exports = async ({github, context, payload, options}) => {
+export default async function main(github, context, options) {
 
     let octokit = new Octokit({
         auth: options.token,
@@ -9,7 +10,7 @@ module.exports = async ({github, context, payload, options}) => {
 
     let repoUpdate = {
         owner: `${options.actionsApprovedOrg}`,
-        repo: `${payload.repo}_${options.version}`
+        repo: `${options.repo}_${options.version}`
     }
     if (context.payload.comment.body.toLowerCase().includes('approve') && await isAuthorized(context, options, octokit)) {
         // Check GitHub.com or GHEC version
