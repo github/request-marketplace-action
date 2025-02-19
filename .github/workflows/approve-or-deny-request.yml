@@ -11,7 +11,7 @@ jobs:
       payload: ${{ steps.issue_body_parser_request.outputs.payload }}
     steps:
       - name: Get JSON Data out of Issue Request
-        uses: peter-murray/issue-body-parser-action@v2
+        uses: peter-murray/issue-body-parser-action@v3
         id: issue_body_parser_request
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -39,9 +39,9 @@ jobs:
         echo "VERSION: $VERSION"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
     - name: Check out scripts
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
         check-latest: true
