@@ -5,7 +5,7 @@
     "description": "GitHub Actions workflow to request a marketplace action",
     "main": "initialize-request.js",
     "scripts": {
-        "test": "nyc --reporter=lcov --reporter=cobertura --reporter=text --reporter=text-summary uvu"
+        "test": "nyc --all --reporter=lcov --reporter=cobertura --reporter=text --reporter=text-summary uvu"
     },
     "dependencies": {
         "@octokit/rest": "^21.1.1"
@@ -16,7 +16,6 @@
     "license": "MIT",
     "devDependencies": {
         "mocha": "^11.1.0",
-        "mock-fs": "^5.4.1",
         "nock": "^14.0.1",
         "nyc": "^17.1.0",
         "uvu": "^0.5.6"
