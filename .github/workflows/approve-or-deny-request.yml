@@ -15,7 +15,7 @@ jobs:
       payload: ${{ steps.issue_body_parser_request.outputs.payload }}
     steps:
       - name: Get JSON Data out of Issue Request
-        uses: peter-murray/issue-body-parser-action@v3
+        uses: peter-murray/issue-body-parser-action@6f0770bae810c272cbdccf6f817b0759a9d82647 # v3.0.0
         id: issue_body_parser_request
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -43,9 +43,9 @@ jobs:
         echo "VERSION: $VERSION"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
     - name: Check out scripts
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
     - name: Setup Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version: '20'
         check-latest: true
@@ -54,7 +54,7 @@ jobs:
         cd .github/scripts
         npm install
     - name: Approve or deny request
-      uses: actions/github-script@v7
+      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
       env:
         VERSION: ${{ steps.get_version.outputs.version }}
         REPO: ${{ fromJson(needs.parse-issue.outputs.payload).repo }}
