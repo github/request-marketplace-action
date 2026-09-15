@@ -28,8 +28,3 @@ jobs:
       working-directory: ${{ env.working-directory }}
     - run: npm test
       working-directory: ${{ env.working-directory }}
-    - uses: tintef/nyc-reporter-action@66a40cea2d02fdb0ac8fa045a7355cbbf9b991a1 # 0.2.5
-      with:
-        GITHUB_TOKEN: ${{ github.token }}
-        SKIP_COVERAGE_FOLDER: true
-        WORKING_DIRECTORY: ${{ env.working-directory }}
