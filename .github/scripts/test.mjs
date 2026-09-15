@@ -4,6 +4,7 @@ import fs from 'fs';
 
 const { default: initialize } = await import('./initialize-request.mjs');
 const { default: complete } = await import('./approve-or-deny-request.mjs');
+const { default: validateRequest } = await import('./validate-request.mjs');
 
 import nock from 'nock';
 nock.disableNetConnect();
@@ -63,6 +64,59 @@ test.before.each(() => {
 });
 test.after.each(() => {
     // nothing to do here
+});
+
+test("Validate GitHub owner and repository names", function () {
+    const validRequests = [
+        { owner: "a", repo: "a" },
+        { owner: "a-b", repo: ".github" },
+        { owner: "a".repeat(39), repo: "a".repeat(100) },
+        { owner: "GitHub", repo: "repo_name-1.0" }
+    ];
+
+    for (const request of validRequests) {
+        assert.equal(validateRequest(JSON.stringify(request)), request);
+    }
+});
+
+test("Reject invalid GitHub owner names", function () {
+    const invalidOwners = [
+        "",
+        "-owner",
+        "owner-",
+        "owner--name",
+        "owner_name",
+        "owner/name",
+        "owner name",
+        "a".repeat(40)
+    ];
+
+    for (const owner of invalidOwners) {
+        assert.throws(() => validateRequest({ owner, repo: "repo" }), /Owner must/);
+    }
+});
+
+test("Reject invalid GitHub repository names", function () {
+    const invalidRepositories = [
+        "",
+        "repo/name",
+        "repo name",
+        "repo$name",
+        "répo",
+        "a".repeat(101)
+    ];
+
+    for (const repo of invalidRepositories) {
+        assert.throws(() => validateRequest({ owner: "owner", repo }), /Repository must/);
+    }
+});
+
+test("Reject malformed request payloads", function () {
+    assert.throws(() => validateRequest("not json"), /valid JSON/);
+    assert.throws(() => validateRequest(null), /JSON object/);
+    assert.throws(() => validateRequest([]), /JSON object/);
+    assert.throws(() => validateRequest({ owner: "owner" }), /Repository must/);
+    assert.throws(() => validateRequest({ repo: "repo" }), /Owner must/);
 });
 
 // Fail the workflow because the repo already exists
