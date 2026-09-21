@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   parse-issue:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
       payload: ${{ steps.issue_body_parser_request.outputs.payload }}
     steps:
@@ -35,7 +35,7 @@ jobs:
             const { default: validateRequest } = await import('${{ github.workspace }}/.github/scripts/validate-request.mjs');
             validateRequest(process.env.REQUEST_PAYLOAD);
   initialize-request:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: parse-issue
     if: needs.parse-issue.outputs.payload != 'NOT_FOUND'
     steps:
