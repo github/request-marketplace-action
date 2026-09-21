@@ -14,18 +14,9 @@ This project provides two actions workflows to help manage the process of reques
 
 ## Requesting a marketplace action
 
-To request a marketplace action, open an issue in this repo. Include in your issue, the following markdown...
+To request a marketplace action, open an issue and select the **Request Marketplace Action** issue form. Enter the action repository's owner, repository name, and version. For example, use `hashicorp-contrib` as the owner and `setup-packer` as the repository for `https://github.com/hashicorp-contrib/setup-packer`.
 
-```
-    ```json request
-    {
-        "owner": "hashicorp-contrib",
-        "repo": "setup-packer",
-        "version": "latest"
-    }
-    ```
-```
-The example above refers to the repo `https://github.com/hashicorp-contrib/setup-packer`. The value of the `version` field needs to either match exactly a release in the repo, or be `latest`. The value of `latest` will cause the workflow to find the latest release available currently.  
+The version needs to either exactly match a release tag in the repository or be `latest`. The value `latest` causes the workflow to use the latest available release.
 See [examples.md](examples.md) for more examples.
 
 ## Prerequisites
@@ -45,7 +36,7 @@ See [examples.md](examples.md) for more examples.
 `ACTIONS_APPROVED_ORG`: actions-approved  
 `ACTIONS_APPROVERS_TEAM`: actions-approvers  
 1. Configure the Enterprise Actions Policies to allow select actions. Allow specified actions as follows:
-    - peter-murray/issue-body-parser-action@v1 (required by these workflows)
+    - issue-ops/parser@v5 (required by these workflows)
 
 ## Installing these workflows into another repo
 

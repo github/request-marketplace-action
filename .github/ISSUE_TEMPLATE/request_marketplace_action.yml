@@ -1,0 +1,36 @@
+name: Request Marketplace Action
+description: Request an action from the marketplace on GitHub.com
+title: "Request: "
+assignees:
+  - actions-approvers
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Provide the repository details for the marketplace action you want to request.
+        You can find the owner and repository name in the action's GitHub URL:
+        `https://github.com/OWNER/REPOSITORY`.
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: The GitHub organization or user that owns the action repository.
+      placeholder: actions
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: Repository
+      description: The name of the action repository.
+      placeholder: toolkit
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Enter an exact release tag, or use "latest" to request the latest release.
+      placeholder: latest
+    validations:
+      required: true
