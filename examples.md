@@ -1,31 +1,7 @@
-# Example issue bodies
+# Example issue form values
 
-```
-    ```json request
-    {
-        "owner": "hashicorp-contrib",
-        "repo": "setup-packer",
-        "version": "latest"
-    }
-    ```
-```
-
-```
-    ```json request
-    {
-        "owner": "hashicorp",
-        "repo": "setup-terraform",
-        "version": "latest"
-    }
-    ```
-```
-
-```
-    ```json request
-    {
-        "owner": "aws-actions",
-        "repo": "configure-aws-credentials",
-        "version": "latest"
-    }
-    ```
-```
+| Owner | Repository | Version |
+| --- | --- | --- |
+| `hashicorp-contrib` | `setup-packer` | `latest` |
+| `hashicorp` | `setup-terraform` | `latest` |
+| `aws-actions` | `configure-aws-credentials` | `latest` |

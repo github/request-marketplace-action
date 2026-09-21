@@ -12,24 +12,21 @@ jobs:
   parse-issue:
     runs-on: self-hosted
     outputs:
-      payload: ${{ steps.issue_body_parser_request.outputs.payload }}
+      payload: ${{ steps.issue_parser.outputs.json }}
     steps:
-      - name: Get JSON Data out of Issue Request
-        uses: peter-murray/issue-body-parser-action@6f0770bae810c272cbdccf6f817b0759a9d82647 # v3
-        id: issue_body_parser_request
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_id: ${{ github.event.issue.number }}
-          payload_marker: request
-          fail_on_missing: false
-      - name: Check out request validator
-        if: steps.issue_body_parser_request.outputs.payload != 'NOT_FOUND'
+      - name: Check out request parser and validator
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Parse issue form
+        id: issue_parser
+        uses: issue-ops/parser@cb7e2e4e5da701aad0e23e718bc4c91d442ca8ba # v5.0.0
+        with:
+          body: ${{ github.event.issue.body }}
+          issue-form-template: request_marketplace_action.yml
       - name: Validate requested repository
-        if: steps.issue_body_parser_request.outputs.payload != 'NOT_FOUND'
+        if: steps.issue_parser.outputs.parsed_owner != '' && steps.issue_parser.outputs.parsed_repo != '' && steps.issue_parser.outputs.parsed_version != ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          REQUEST_PAYLOAD: ${{ steps.issue_body_parser_request.outputs.payload }}
+          REQUEST_PAYLOAD: ${{ steps.issue_parser.outputs.json }}
         with:
           script: |
             const { default: validateRequest } = await import('${{ github.workspace }}/.github/scripts/validate-request.mjs');
@@ -37,7 +34,7 @@ jobs:
   approve-or-deny-request:
     runs-on: self-hosted
     needs: parse-issue
-    if: needs.parse-issue.outputs.payload != 'NOT_FOUND'
+    if: fromJson(needs.parse-issue.outputs.payload).owner != '' && fromJson(needs.parse-issue.outputs.payload).repo != '' && fromJson(needs.parse-issue.outputs.payload).version != ''
     steps:
     - name: Lookup the latest release of ${{ fromJson(needs.parse-issue.outputs.payload).owner }}/${{ fromJson(needs.parse-issue.outputs.payload).repo }}
       id: get_version
@@ -59,7 +56,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
-        node-version: '20'
+        node-version: '24'
         check-latest: true
     - name: Install dependencies
       run: |
